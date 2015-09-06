@@ -56,7 +56,6 @@ private[vs] object PosePipeline extends Logging {
 
   }
 
-  @deprecated("parent method sortByScore deprecated", "Sep 6th, 2016")
   private def parseScore(method: Int)(pose: String) = {
     var result: Double = Double.MinValue
     //Sometimes OEChem produce molecules with empty score or malformed molecules
@@ -89,7 +88,6 @@ private[vs] object PosePipeline extends Logging {
     result
   }
 
-  @deprecated("parent method collapse deprecated", "Sep 6th, 2016")
   private def collapsePoses(bestN: Int, parseScore: String => Double) = (record: (String, Iterable[String])) => {
     record._2.toList.sortBy(parseScore).reverse.take(bestN)
   }
@@ -128,14 +126,12 @@ private[vs] class PosePipeline(override val rdd: RDD[String], val scoreMethod: I
     topPoses.collect
   }
 
-  @deprecated("use getTopPoses", "Sep 6th, 2016")
   override def sortByScore = {
     val res = rdd.sortBy(PosePipeline
       .parseScore(methodBroadcast.value), false)
     new PosePipeline(res, scoreMethod)
   }
 
-  @deprecated("use getTopPoses", "Sep 6th, 2016")
   override def collapse(bestN: Int) = {
     val res = rdd.groupBy(PosePipeline.parseId)
       .flatMap(PosePipeline.collapsePoses(bestN, PosePipeline.parseScore(methodBroadcast.value)))
