@@ -23,7 +23,7 @@ private[vs] object PosePipeline extends Logging {
 
   private[vs] def parseIdAndScore(method: Int)(pose: String) = {
     var score: Double = Double.MinValue
-    var id: String = null
+    val id: String = parseId(pose)
     //Sometimes OEChem produce molecules with empty score or malformed molecules
     //We use try catch block for those exceptions
     try {
@@ -44,7 +44,6 @@ private[vs] object PosePipeline extends Logging {
         res = mol.getProperty(methodString)
 
       }
-      id = parseId(pose)
       score = res.toDouble
     } catch {
 
@@ -104,9 +103,10 @@ private[vs] class PosePipeline(override val rdd: RDD[String], val scoreMethod: I
 
   override def getTopPoses(topN: Int) = {
     val methodBroadcastLocal = methodBroadcast
+    val method = methodBroadcastLocal.value
     //Parsing id and Score in parallel and collecting data to driver
     val idAndScore = rdd.map {
-      case (mol) => PosePipeline.parseIdAndScore(methodBroadcastLocal.value)(mol)
+      case (mol) => PosePipeline.parseIdAndScore(method)(mol)
     }.collect()
 
     //Finding Distinct top id and score in serial at driver
@@ -120,13 +120,10 @@ private[vs] class PosePipeline(override val rdd: RDD[String], val scoreMethod: I
     //for top molecules in parallel  
     val topMolsBroadcast = rdd.sparkContext.broadcast(topMols)
     val topPoses = rdd.filter { mol =>
-      var boolVar: Boolean = false
-      for (i <- 0 to topMolsBroadcast.value.size - 1) {
-        //checking main dataset against the broadcasted array
-        if (PosePipeline.parseIdAndScore(methodBroadcastLocal.value)(mol) == topMolsBroadcast.value(i))
-          boolVar = true
-      }
-      boolVar
+      val idAndScore = PosePipeline.parseIdAndScore(method)(mol)
+      topMolsBroadcast.value
+        .map(topHit => topHit == idAndScore)
+        .reduce(_ || _)
     }
     topPoses.collect
   }

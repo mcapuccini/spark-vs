@@ -134,7 +134,7 @@ class SBVSPipelineTest extends FunSuite with BeforeAndAfterAll {
 
   }
 
-  test("getTopMolecules should return the topN poses") {
+  test("getTopPoses should return the topN poses") {
     val topN = 10
     val res = new SBVSPipeline(sc)
       .readPoseFile(getClass.getResource("new_pose_file.sdf").getPath, OEDockMethod.Chemgauss4)
