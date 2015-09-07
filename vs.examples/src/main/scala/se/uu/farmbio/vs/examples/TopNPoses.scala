@@ -13,7 +13,8 @@ object TopNPoses extends Logging {
     master: String = null,
     poseFile: String = null,
     topPosesPath: String = null,
-    oeLicensePath: String = null
+    oeLicensePath: String = null,
+    n: Int = 30
   )
 
   def main(args: Array[String]) {
@@ -26,6 +27,9 @@ object TopNPoses extends Logging {
       opt[String]("oeLicensePath")
         .text("path to OEChem License")
         .action((x, c) => c.copy(oeLicensePath = x))
+      opt[Int]("n")
+        .text("it controls top N poses (default: 30).")
+        .action((x, c) => c.copy(n = x))
       arg[String]("<poses-file>")
         .required()
         .text("path to input SDF poses file")
@@ -58,7 +62,7 @@ object TopNPoses extends Logging {
     val t0 = System.currentTimeMillis
      val res = new SBVSPipeline(sc)
       .readPoseFile(params.poseFile, OEDockMethod.Chemgauss4)
-      .getTopPoses(30)
+      .getTopPoses(params.n)
     val t1 = System.currentTimeMillis
     sc.parallelize(res, 1).saveAsTextFile(params.topPosesPath)
     val elapsed = t1 - t0
