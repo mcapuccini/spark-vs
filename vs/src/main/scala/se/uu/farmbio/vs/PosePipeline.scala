@@ -110,11 +110,13 @@ private[vs] class PosePipeline(override val rdd: RDD[String], val scoreMethod: I
     }.collect()
 
     //Finding Distinct top id and score in serial at driver
-    val topMols = idAndScore.groupBy { case (id, score) => id }
-      .mapValues(_.max)
-      .map { case (id, maxIdAndScore) => maxIdAndScore }.toList
-      .sortBy { case (id, score) => -score }
-      .take(topN).toArray
+    val topMols =
+      idAndScore.foldLeft(Map[String, Double]() withDefaultValue Double.MinValue) {
+        case (m, (id, score)) => m updated (id, score max m(id))
+      }
+        .toSeq
+        .sortBy { case (id, score) => -score }
+        .take(topN).toArray
 
     //Broadcasting the top id and score and search main rdd
     //for top molecules in parallel  
