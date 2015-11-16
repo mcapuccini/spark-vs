@@ -1,0 +1,88 @@
+package se.uu.farmbio.vs.examples
+
+import org.apache.spark.SparkConf
+import org.apache.spark.SparkContext
+import java.io.FileInputStream
+import openeye.oemolprop.OEFilterType
+import se.uu.farmbio.vs.SBVSPipeline
+import openeye.oedocking.OEDockMethod
+import openeye.oedocking.OESearchResolution
+import java.io.PrintWriter
+import scopt.OptionParser
+
+object SimplePipeline {
+
+  case class Params(
+    master: String = null,
+    receptorFile: String = null,
+    topPosesPath: String = null,
+    smilesFile: String = null,
+    conformersPath: String = null)
+
+  def main(args: Array[String]) {
+
+    val defaultParams = Params()
+
+    val parser = new OptionParser[Params]("SimplePipeline") {
+      head("SimplePipeline: a simple SBVS pipeline.")
+      opt[String]("master")
+        .text("spark master")
+        .action((x, c) => c.copy(master = x))
+      arg[String]("<receptor-file>")
+        .required()
+        .text("path to input OEB receptor file")
+        .action((x, c) => c.copy(receptorFile = x))
+      arg[String]("<input-smiles-file>")
+        .required()
+        .text("path to input SMILES file")
+        .action((x, c) => c.copy(smilesFile = x))
+      arg[String]("<out-conformers-path>")
+        .required()
+        .text("path to output SDF conformes")
+        .action((x, c) => c.copy(conformersPath = x))
+      arg[String]("<top-poses-path>")
+        .required()
+        .text("path to top output poses")
+        .action((x, c) => c.copy(topPosesPath = x))
+    }
+
+    parser.parse(args, defaultParams).map { params =>
+      run(params)
+    } getOrElse {
+      sys.exit(1)
+    }
+
+  }
+
+  def run(params: Params) {
+
+    //Init Spark
+    val conf = new SparkConf()
+      .setAppName("SimplePipeline")
+      .setExecutorEnv("OE_LICENSE", System.getenv("OE_LICENSE"))
+    if (params.master != null) {
+      conf.setMaster(params.master)
+    }
+    val sc = new SparkContext(conf)
+    sc.hadoopConfiguration.set("se.uu.farmbio.parsers.SmilesRecordReader.size", "150")
+
+    val receptorStream = new FileInputStream(params.receptorFile)
+
+    val res = new SBVSPipeline(sc)
+      .readSmilesFile(params.smilesFile)
+      .filter(OEFilterType.Lead)
+      .generateConformers(0, 1) //generate 1 conformer per SMILES
+      .saveAsTextFile(params.conformersPath)
+      .dock(receptorStream, OEDockMethod.Chemgauss4,
+        OESearchResolution.Standard)
+      .sortByScore
+      .getMolecules
+      .take(10) //take first 10
+
+    val pw = new PrintWriter(params.topPosesPath)
+    res.foreach(pw.println(_))
+    pw.close
+
+  }
+
+}

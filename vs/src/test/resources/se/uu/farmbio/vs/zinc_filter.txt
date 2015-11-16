@@ -1,0 +1,120 @@
+#This is a part of the filter file provided in the first ZINC paper, we use that for unit testing.
+
+MIN_MOLWT	60	"Minimum molecular weight"
+MAX_MOLWT	600	"Maximum molecular weight"
+MIN_SSSR_RINGS	0	"Minumum number of SSSR rings"
+MAX_SSSR_RINGS	7	"Maximum number of SSSR rings"
+MAX_RING_SIZE	12	"Maximum size of any SSSR ring"
+MIN_CARBONS	3	"Minimum number of carbons"
+MIN_HETEROATOMS	0	"Minimum number of heteroatoms"
+MIN_Het_C_Ratio	0.00	"Minimum heteroatom to carbon ratio"
+MAX_Het_C_Ratio	2.0	"Maximum heteroatom to carbon ratio"
+
+ADJUST_ROT_FOR_RING_TRUE	"BOOLEAN for weather to estimate degrees of freedom in rings"
+
+MIN_ROT_BONDS	0	"Minimum number of rotatable bonds"
+MAX_ROT_BONDS	12	"Maximum number of rotatable bonds"
+MIN_RIGID_BONDS	0	"Minimum number of rigid bonds"
+MAX_RIGID_BONDS	50	"Maximum number of rigid bonds"
+MIN_HBOND_DONORS	0	"Minimum number of hydrogen-bond donors"
+MAX_HBOND_DONORS	6	"Minimum number of hydrogen-bond donors"
+MIN_HBOND_ACCEPTORS	0	"Minimum number of hydrogen-bond acceptors"
+
+MAX_HBOND_ACCEPTORS	10	"Minimum number of hydrogen-bond acceptors"
+MIN_COUNT_FORMAL_CRG	0	"Minimum number formal charges"
+MAX_COUNT_FORMAL_CRG	3	"Maximum number of formal charges"
+MIN_SUM_FORMAL_CRG	-2	"Minimum sum of formal charges"
+MAX_SUM_FORMAL_CRG	2	"Maximum sum of formal charges"
+MIN_XLOGP	-4.0	"Minimum XLogP"
+MAX_XLOGP	6.0	"Maximum XLogP"
+MIN_2D_PSA	0.0	"Minimum 2-Dimensional (SMILES) Polar Surface Area"
+MAX_2D_PSA	150.0	"Maximum 2-Dimensional (SMILES) Polar Surface Area"
+
+ALLOWED_ELEMENTS H,B,C,N,O,F,S,P,Cl,Br,I
+ELIMINATE_METALS Sc,Ti,V,Cr,Mn,Fe,Co,Ni,Cu,Zn,Y,Zr,Nb,Mo,Tc,Ru,Rh,Pd,Ag,Cd
+
+#Trying a bunch of new rules
+NEWRULE	carbazides	0	O=CN=[N+]=[N-]
+NEWRULE	0	acid_anhydrides	C(=O)OC(=O)
+
+RULE	0	pentafluorophenyl_esters
+RULE	0	paranitrophenyl_esters
+RULE	0	HOBT_esters
+RULE	0	triflates
+RULE	0	lawesson_s_reagent
+RULE	0	phosphoramides
+#RULE	0	aromatic_azides
+#RULE	0	beta_carbonyl_quart_nitrogen
+#RULE	0	quarternary_C_Cl_I_P_or_S
+RULE	0	phosphoranes
+#RULE	0	chloramidines
+RULE	0	nitroso
+#RULE	0	P_S_Halides
+#RULE	0	varbodiimide
+RULE	0	isonitrile
+#RULE	0	triacyloxime
+RULE	0	cyanohydrins
+RULE	0	acyl_cyanides
+#RULE	0	sulfonyl_cyanides
+#RULE	0	cyanophosphonates
+RULE	0	azocyanamides
+#RULE	0	azoalkanals
+RULE	0	polyenes
+RULE	0	saponin_derivatives
+RULE	0	cytochalasin_derivatives
+RULE	0	cycloheximide_derivatives
+RULE	0	monensin_derivatives
+#RULE	0	cyanidin_derivatives
+RULE	0	squalestatin_derivatives
+RULE	0	acid_halide
+RULE	0	anhydride
+RULE	0	azide
+RULE	0	azo
+RULE	0	di_peptide
+#RULE	0	long_aliphatic_chain
+RULE	0	beta_halo_carbonyl
+RULE	0	peroxide
+RULE	0	phosphonic_acid
+RULE	0	phosphonic_ester
+RULE	0	phosphoric_acid
+RULE	0	phosphoric_ester
+RULE	0	sulfonic_acid
+RULE	0	sulfonic_ester
+#RULE	0	triphenyl_phosphene
+#RULE	0	unbranched_chain
+RULE	0	sulfonyl_halide
+RULE	0	halopyrimidine
+RULE	0	perhalo_ketone
+RULE	0	aziridine
+RULE	0	oxalyl
+RULE	0	dye
+RULE	6	alcohol
+RULE	8	alkene
+RULE	4	amide
+RULE	4	amino_acid
+RULE	4	amine
+RULE	4	primary_amine
+RULE	4	secondary_amine
+RULE	4	tertiary_amine
+RULE	4	carboxylic_acid
+RULE	6	halide
+RULE	1	iodine
+RULE	4	ketone
+RULE	4	phenol
+RULE	4	alkyne
+RULE	4	aniline
+RULE	4	aryl_halide
+RULE	4	carbamate
+RULE	4	ester
+RULE	4	ether
+RULE	4	hydrazine
+RULE	4	hydrazone
+RULE	4	hydroxylamine
+RULE	4	nitrile
+RULE	4	sulfide
+RULE	4	sulfone
+RULE	4	sulfoxide
+RULE	4	thiourea
+RULE	4	thioamide
+RULE	4	thiol
+RULE	4	urea
