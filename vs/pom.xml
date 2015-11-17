@@ -21,6 +21,13 @@
 		</pluginRepository>
 	</pluginRepositories>
 
+	<repositories>
+		<repository>
+			<id>pele.farmbio.uu.se</id>
+			<url>http://pele.farmbio.uu.se:8888/artifactory/libs-snapshot</url>
+		</repository>
+	</repositories>
+
 	<dependencies>
 		<dependency>
 			<groupId>se.uu.farmbio</groupId>
