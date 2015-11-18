@@ -24,7 +24,7 @@
 	<repositories>
 		<repository>
 			<id>pele.farmbio.uu.se</id>
-			<url>http://pele.farmbio.uu.se:8888/artifactory/libs-snapshot</url>
+			<url>http://pele.farmbio.uu.se/artifactory/libs-snapshot</url>
 		</repository>
 	</repositories>
 
