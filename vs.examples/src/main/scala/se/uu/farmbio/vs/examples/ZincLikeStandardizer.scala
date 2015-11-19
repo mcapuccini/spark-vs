@@ -1,11 +1,12 @@
 package se.uu.farmbio.vs.examples
 
+import org.apache.spark.Logging
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
-import se.uu.farmbio.vs.SBVSPipeline
+
 import openeye.oemolprop.OEFilterType
 import scopt.OptionParser
-import org.apache.spark.Logging
+import se.uu.farmbio.vs.SBVSPipeline
 
 object ZincLikeStandardizer extends Logging {
 

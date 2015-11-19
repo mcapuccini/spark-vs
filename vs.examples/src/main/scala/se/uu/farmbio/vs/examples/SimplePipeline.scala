@@ -1,14 +1,16 @@
 package se.uu.farmbio.vs.examples
 
+import java.io.FileInputStream
+import java.io.PrintWriter
+
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
-import java.io.FileInputStream
-import openeye.oemolprop.OEFilterType
-import se.uu.farmbio.vs.SBVSPipeline
+
 import openeye.oedocking.OEDockMethod
 import openeye.oedocking.OESearchResolution
-import java.io.PrintWriter
+import openeye.oemolprop.OEFilterType
 import scopt.OptionParser
+import se.uu.farmbio.vs.SBVSPipeline
 
 object SimplePipeline {
 

@@ -1,16 +1,16 @@
 package se.uu.farmbio.vs.examples
 
+import java.io.FileInputStream
+import java.io.PrintWriter
+
+import org.apache.spark.Logging
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
-import se.uu.farmbio.vs.SBVSPipeline
-import openeye.oemolprop.OEFilterType
+
 import openeye.oedocking.OEDockMethod
 import openeye.oedocking.OESearchResolution
-import java.io.PrintWriter
-import java.io.FileInputStream
 import scopt.OptionParser
-import org.apache.spark.Logging
-import se.uu.farmbio.parsers.SDFRecordReader
+import se.uu.farmbio.vs.SBVSPipeline
 
 case class Params(
   master: String = null,
