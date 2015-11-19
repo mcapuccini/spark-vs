@@ -1,9 +1,9 @@
 package se.uu.farmbio.vs
 
 import java.io.InputStream
-import org.apache.commons.io.IOUtils
-import org.apache.spark.rdd.RDD
+
 import org.apache.commons.lang.NotImplementedException
+import org.apache.spark.rdd.RDD
 
 trait ConformerTransforms {
 
