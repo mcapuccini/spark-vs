@@ -1,32 +1,32 @@
 # Spark SBVS #
 
-Spark-VS is a library for setting up massively parallel Structure-Based Virtual Screening (SBVS) pipelines in Spark.
+Spark-VS is a Spark-based library for setting up massively parallel Structure-Based Virtual Screening (SBVS) pipelines in Spark.
 
-## Getting started ##
+## Getting started 
+First, you need to setup a Spark project with maven, this tutorial is a good starting point:
+[www.youtube.com/watch?v=aB4-RD_MMf0](www.youtube.com/watch?v=aB4-RD_MMf0).
 
-The following procedure was tested on Ubuntu 14.04.2 LTS. We assume you downloaded OpenEye-Java-2015.Feb.3-Linux-x64 and own its license.
+Then, add the following entries into your pom.xml file: 
 
-### Install OpenEye in yur local maven repository ###
+	<repositories>
+		...
+		<repository>
+			<id>pele.farmbio.uu.se</id>
+			<url>http://pele.farmbio.uu.se/artifactory/libs-snapshot</url>
+		</repository>
+		...
+	</repositories>
 
-```
-cd OpenEye-Java-2015.Feb.3-Linux-x64/lib/
-mvn install:install-file -DgroupId=OpenEye -DartifactId=java_api -Dversion=2015Feb3 -Dpackaging=jar -Dfile=oejava-2015.Feb.3-Linux-x64.jar
-mvn install:install-file -DgroupId=OpenEye -DartifactId=java_utils -Dversion=2015Feb3 -Dpackaging=jar -Dfile=openeye-javautils.jar
-```
-
-### Install SDF and SMILES parsers for Spark ###
-```
-git clone git@bitbucket.org:mcapuccini/parsers.git
-cd parsers/parsers/
-mvn install -DskipTests
-```
-
-### Install Spark-VS in your local maven repository ###
-```
-git clone git@bitbucket.org:olas/spark-vs.git
-cd spark-vs/vs
-mvn install -DskipTests
-```
+	<dependencies>
+	...
+		<groupId>se.uu.farmbio</groupId>
+			<artifactId>vs</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+	...
+	</dependencies>
+	
+Finally, since OpenEye libraries are used under the hood, you need to own and a OpenEye license in order to run this. Therefore, you need to set a OE_LICENSE environment variable that points to the license, in your system to run the code in this repository.	
 
 ### Import vs.examples project in Scala IDE ###
 
