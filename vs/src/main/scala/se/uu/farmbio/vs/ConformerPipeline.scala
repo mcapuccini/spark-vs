@@ -20,7 +20,15 @@ class ConformerPipeline[vs](override val rdd: RDD[String])
 //    val bcastReceptor = sc.broadcast(receptorBytes)
 //    val res = rdd.flatMap(OEChemLambdas.oeDocking(bcastReceptor, method, resolution, oeErrorLevel))
 //    new PosePipeline(res)
-      throw new NotImplementedException("Needs to be reimplemented due to memory issue")
+    val cppExePath = "/home/laeeq/Desktop/spark-vs/vs/src/main/c++/dockingstd"
+    val pipedRDD = rdd.pipe(cppExePath)
+    val res = pipedRDD.collect()
+    val string = res.mkString("\n")
+    val res2 = SBVSPipeline.splitSDFmolecules(string)
+    val cppRDD = sc.makeRDD(res2)    
+    new PosePipeline(cppRDD)
+    
+      //throw new NotImplementedException("Needs to be reimplemented due to memory issue")
   }
 
   override def repartition() = {

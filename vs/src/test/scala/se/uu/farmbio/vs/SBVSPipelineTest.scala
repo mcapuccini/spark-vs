@@ -111,20 +111,20 @@ class SBVSPipelineTest extends FunSuite with BeforeAndAfterAll {
     
   }
   
-//  test("dock should dock a set of conformers to a receptor and generate the poses") {
-//
-//    val res = new SBVSPipeline(sc)
-//      .readConformerFile(getClass.getResource("filtered_conformers.sdf").getPath)
-//      .dock(getClass.getResourceAsStream("receptor.oeb"), 
-//          OEDockMethod.Chemgauss4, OESearchResolution.Standard)
-//      .getMolecules
-//      .collect
-//      
-//    val filteredPoses = TestUtils.readSDF(getClass.getResource("filtered_poses.sdf").getPath)
-//    assert(res.map(TestUtils.removeSDFheader).toSet 
-//        === filteredPoses.map(TestUtils.removeSDFheader).toSet)
-//    
-//  }
+  test("dock should dock a set of conformers to a receptor and generate the poses") {
+
+    val res = new SBVSPipeline(sc)
+      .readConformerFile(getClass.getResource("filtered_conformers.sdf").getPath)
+      .dock(getClass.getResourceAsStream("receptor.oeb"), 
+          OEDockMethod.Chemgauss4, OESearchResolution.Standard)
+      .getMolecules
+      .collect
+      
+    val filteredPoses = TestUtils.readSDF(getClass.getResource("filtered_poses.sdf").getPath)
+    assert(res.map(TestUtils.removeSDFheader).toSet 
+        === filteredPoses.map(TestUtils.removeSDFheader).toSet)
+    
+  }
   
   override def afterAll() {
     sc.stop() 
