@@ -70,7 +70,7 @@ object Docker extends Logging {
     }
     val sc = new SparkContext(conf)
     sc.hadoopConfiguration.set("se.uu.farmbio.parsers.SDFRecordReader.size", params.size)
-
+    
     val receptorStream = new FileInputStream(params.receptorFile)
 
     val t0 = System.currentTimeMillis

@@ -20,7 +20,7 @@ class ConformerPipeline[vs](override val rdd: RDD[String])
 //    val bcastReceptor = sc.broadcast(receptorBytes)
 //    val res = rdd.flatMap(OEChemLambdas.oeDocking(bcastReceptor, method, resolution, oeErrorLevel))
 //    new PosePipeline(res)
-    val cppExePath = "/home/laeeq/Desktop/spark-vs/vs/src/main/c++/dockingstd"
+    val cppExePath = "/home/laeeq/Desktop/spark-vs/docking-cpp/dockingstd"
     val pipedRDD = rdd.pipe(cppExePath)
     val res = pipedRDD.collect()
     val string = res.mkString("\n")
