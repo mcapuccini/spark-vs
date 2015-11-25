@@ -1,4 +1,4 @@
-# Virtual Screening Docking CPP Implementation #
+# Docking CPP Implementation #
 
 The folder contains docking implementation in c++.
 
