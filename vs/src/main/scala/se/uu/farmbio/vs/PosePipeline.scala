@@ -3,17 +3,30 @@ package se.uu.farmbio.vs
 import scala.io.Source
 
 import org.apache.spark.rdd.RDD
+import uu.farmbio.sg.SGUtils
+import org.apache.spark.mllib.regression.LabeledPoint
 
 trait PoseTransforms {
 
   def collapse(bestN: Int): SBVSPipeline with PoseTransforms
   def sortByScore: SBVSPipeline with PoseTransforms
   def repartition : SBVSPipeline with PoseTransforms
-  
+   def generateSignatures() : ICPMLTransforms
 }
 
 class PosePipeline[vs] (override val rdd: RDD[String]) extends SBVSPipeline(rdd)
     with PoseTransforms {
+  
+  def generateSignatures = {
+      val molsCount = rdd.count()
+      val molsWithIndex = rdd.zipWithIndex()
+      val molsAfterSG = molsWithIndex.flatMap{case(mol, index) => Sdf2LibSVM.sdf2signatures(mol,index + 1,molsCount)} //Compute signatures
+      .cache
+      val (result, sig2ID_universe) = SGUtils.sig2ID_carryData(molsAfterSG)
+      val resultAsLP : RDD[(Long, LabeledPoint)] = SGUtils.sig2LP_carryData(result, sc);
+      
+      new ICPMLPipeline(resultAsLP)
+   }
 
     private def parseId = (pose: String) => {
       Source.fromString(pose).getLines.next
