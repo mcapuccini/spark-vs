@@ -11,13 +11,13 @@ trait PoseTransforms {
   def collapse(bestN: Int): SBVSPipeline with PoseTransforms
   def sortByScore: SBVSPipeline with PoseTransforms
   def repartition : SBVSPipeline with PoseTransforms
-   def generateSignatures() : ICPMLTransforms
+   def generateSignaturesWithDocking() : ICPMLTransforms
 }
 
 class PosePipeline[vs] (override val rdd: RDD[String]) extends SBVSPipeline(rdd)
     with PoseTransforms {
   
-  def generateSignatures = {
+  def generateSignaturesWithDocking = {
       val molsCount = rdd.count()
       val molsWithIndex = rdd.zipWithIndex()
       val molsAfterSG = molsWithIndex.flatMap{case(mol, index) => Sdf2LibSVM.sdf2signatures(mol,index + 1,molsCount)} //Compute signatures

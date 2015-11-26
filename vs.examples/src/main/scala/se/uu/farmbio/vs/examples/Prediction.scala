@@ -121,7 +121,7 @@ object Prediction extends Logging {
     .dock(receptorStream, OEDockMethod.Chemgauss4, OESearchResolution.Standard)
     //.collapse(1) //collapse poses with same id to the one with best score
     .sortByScore
-    .generateSignatures()
+    .generateSignaturesWithDocking()
     .saveAsSignatureFile(params.signatureOutputFile)
     /*
     .trainICPModel(params.calibrationSize, params.numIterations, params.numOfICPs)
