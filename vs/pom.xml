@@ -66,6 +66,21 @@
 			<artifactId>spark-core_2.10</artifactId>
 			<version>1.4.0</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.spark</groupId>
+			<artifactId>spark-mllib_2.10</artifactId>
+			<version>1.4.0</version>
+		</dependency>
+		<dependency>
+            <groupId>se.uu.farmbio</groupId>
+            <artifactId>cp</artifactId>
+            <version>0.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>uu.farmbio</groupId>
+            <artifactId>sg_and_csv</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
 	</dependencies>
 
 	<build>
