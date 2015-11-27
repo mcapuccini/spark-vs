@@ -30,7 +30,7 @@ case class Arglist(
   master: String = null,
   conformersFile: String = null,
   receptorFile: String = null,
-  signatureOutputFile: String = null,
+  predictionOutputFile: String = null,
   
   calibrationSize: Int = 0,
   numIterations: Int = 0,
@@ -57,10 +57,10 @@ object Prediction extends Logging {
         .required()
         .text("path to input OEB receptor file")
         .action((x, c) => c.copy(receptorFile = x))
-      arg[String]("<Signature-Output-File>")
+      arg[String]("<Prediction-Output-File>")
         .required()
-        .text("path to Output Signature file")
-        .action((x, c) => c.copy(signatureOutputFile = x))
+        .text("path to Output Prediction file")
+        .action((x, c) => c.copy(predictionOutputFile = x))
       opt[Int]("calibrationSize")
         .required()
         .text(s"size of calibration set (for each class)")
@@ -114,42 +114,26 @@ object Prediction extends Logging {
     .getMolecules.randomSplit(Array(params.DSinit,1-params.DSinit), 1234)  //Draw initial molecules to train initial ML model
     
     val cachedRem = remaining.cache()
-    
-    
-    val signatures = new SBVSPipeline(sc)
+        
+    val train = new SBVSPipeline(sc)
     .readConformerRDDs(Seq(dsInit.cache))
     .dock(receptorStream, OEDockMethod.Chemgauss4, OESearchResolution.Standard)
     //.collapse(1) //collapse poses with same id to the one with best score
     .sortByScore
     .generateSignaturesWithDocking()
-    .saveAsSignatureFile(params.signatureOutputFile)
-    /*
     .trainICPModel(params.calibrationSize, params.numIterations, params.numOfICPs)
        
     val kmolecules = new SBVSPipeline(sc)
     .readConformerRDDs(Seq(remaining))
-    //.readConformerFile("data/remainingLib.sdf")
-    //.randomSplit(params.k, 1234) //Read kmolecules from remainingLib file and saves the rest in remainingLib.sdf
-       
-    val kmolsign = kmolecules.generateSignatures()
-    
-    //.saveAsTextFile("processed/kmolecules.sdf") //saves already processed kmolecules in sdf format
-    //.generateSignatures()
-    
-    //kmolecules.saveAsSignatureFile("processed/kmolecules.txt") //saves already processed kmolecules signatures
-    val molsWithIndex = kmolecules.getMolecules.zipWithIndex()
-    
-    val predictionWithIndex = kmolsign.predict(train)
+           
+    val kmolsign = kmolecules.generateSignaturesWithoutDocking()
         
-    //The number of k molecules
-    println("The number of molecules are " + molsWithIndex.count())
-   
+    val predictionWithIndex = kmolsign.predict(train)
+       
     //Saving Predictions to PredictionFile  
     val pw = new PrintWriter(params.predictionOutputFile)
     pw.println(predictionWithIndex.deep)
     pw.close
-    * 
-    */
   
     sc.stop()
     
