@@ -11,7 +11,7 @@ trait PoseTransforms {
   def collapse(bestN: Int): SBVSPipeline with PoseTransforms
   def sortByScore: SBVSPipeline with PoseTransforms
   def repartition : SBVSPipeline with PoseTransforms
-   def generateSignaturesWithDocking() : ICPMLTransforms
+  def generateSignaturesWithDocking() : ICPMLTransforms
 }
 
 class PosePipeline[vs] (override val rdd: RDD[String]) extends SBVSPipeline(rdd)

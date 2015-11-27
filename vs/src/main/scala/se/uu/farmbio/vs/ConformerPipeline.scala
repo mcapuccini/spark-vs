@@ -13,12 +13,23 @@ trait ConformerTransforms {
 
   def dock(receptor: InputStream, method: Int, resolution: Int): SBVSPipeline with PoseTransforms
   def repartition: SBVSPipeline with ConformerTransforms
-  
+  def generateSignaturesWithoutDocking() : ICPMLTransforms
 
 }
 
 class ConformerPipeline[vs](override val rdd: RDD[String])
   extends SBVSPipeline(rdd) with ConformerTransforms {
+  
+   def generateSignaturesWithoutDocking = {
+      val molsCount = rdd.count()
+      val molsWithIndex = rdd.zipWithIndex()
+      val molsAfterSG = molsWithIndex.flatMap{case(mol, index) => Sdf2LibSVM.sdf2signatures(mol,index + 1,molsCount)} //Compute signatures
+      .cache
+      val (result, sig2ID_universe) = SGUtils.sig2ID_carryData(molsAfterSG)
+      val resultAsLP : RDD[(Long, LabeledPoint)] = SGUtils.sig2LP_carryData(result, sc);
+      
+      new ICPMLPipeline(resultAsLP)
+   }
     
   override def dock(receptor: InputStream, method: Int, resolution: Int) = {
       val receptorBytes = IOUtils.toByteArray(receptor)
