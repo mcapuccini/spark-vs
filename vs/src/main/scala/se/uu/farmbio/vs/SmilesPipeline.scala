@@ -17,7 +17,7 @@ trait SmilesTransforms {
   
 }
 
-class SmilesPipeline[vs] (override val rdd: RDD[String]) 
+private[vs] class SmilesPipeline (override val rdd: RDD[String]) 
 extends SBVSPipeline(rdd) with SmilesTransforms {
 
     override def filter(filterType: Int) = {

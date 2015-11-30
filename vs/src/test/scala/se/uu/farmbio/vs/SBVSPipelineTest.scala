@@ -111,6 +111,21 @@ class SBVSPipelineTest extends FunSuite with BeforeAndAfterAll {
     
   }
   
+  test("pipe shoud execute an external program over some conformers") {
+    
+    val toPipe = new SBVSPipeline(sc)
+      .readConformerFile(getClass.getResource("filtered_conformers.sdf").getPath)
+      .asInstanceOf[ConformerPipeline]
+    
+    //Try to count lines with wc
+    val wc = toPipe.pipe(List("wc","-l"))
+      .getMolecules
+      .map(_.trim.toInt)
+      .sum
+    assert(wc.toInt == 998)
+    
+  }
+  
   test("dock should dock a set of conformers to a receptor and generate the poses") {
 
     val res = new SBVSPipeline(sc)

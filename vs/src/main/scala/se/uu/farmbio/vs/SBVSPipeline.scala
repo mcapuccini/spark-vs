@@ -18,7 +18,7 @@ private object SBVSPipeline {
 
 }
 
-class SBVSPipeline (protected val rdd: RDD[String]) extends Logging {
+private[vs] class SBVSPipeline (protected val rdd: RDD[String]) extends Logging {
   
   def this(sc: SparkContext) = {
     this(sc.emptyRDD[String])
