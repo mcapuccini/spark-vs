@@ -118,7 +118,7 @@ class SBVSPipelineTest extends FunSuite with BeforeAndAfterAll {
       .asInstanceOf[ConformerPipeline]
     
     //Try to count lines with wc
-    val wc = toPipe.pipe(List("wc","-l"))
+    val wc = toPipe.pipe(List("wc","-l", OEDockMethod.Chemgauss4.toString(), OESearchResolution.Standard.toString()))
       .getMolecules
       .map(_.trim.toInt)
       .sum
@@ -130,8 +130,8 @@ class SBVSPipelineTest extends FunSuite with BeforeAndAfterAll {
 
     val res = new SBVSPipeline(sc)
       .readConformerFile(getClass.getResource("filtered_conformers.sdf").getPath)
-      .dock(getClass.getResourceAsStream("receptor.oeb"), 
-          OEDockMethod.Chemgauss4, OESearchResolution.Standard)
+      .dock(System.getenv("DOCKING_CPP"), 
+          OEDockMethod.Chemgauss4, OESearchResolution.Standard,"data/receptor.oeb")
       .getMolecules
       .collect
       

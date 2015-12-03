@@ -16,6 +16,7 @@ case class Params(
   master: String = null,
   conformersFile: String = null,
   receptorFile: String = null,
+  cppExeFile: String = null,
   topPosesPath: String = null,
   size: String = "30",
   collapse: Int = 0)
@@ -43,7 +44,7 @@ object Docker extends Logging {
         .action((x, c) => c.copy(conformersFile = x))
       arg[String]("<receptor-file>")
         .required()
-        .text("path to input OEB receptor file")
+        .text("path to input receptor file")
         .action((x, c) => c.copy(receptorFile = x))
       arg[String]("<top-poses-path>")
         .required()
@@ -71,12 +72,10 @@ object Docker extends Logging {
     val sc = new SparkContext(conf)
     sc.hadoopConfiguration.set("se.uu.farmbio.parsers.SDFRecordReader.size", params.size)
     
-    val receptorStream = new FileInputStream(params.receptorFile)
-
     val t0 = System.currentTimeMillis
     var poses = new SBVSPipeline(sc)
       .readConformerFile(params.conformersFile)
-      .dock(receptorStream, OEDockMethod.Chemgauss4, OESearchResolution.Standard)
+      .dock(System.getenv("DOCKING_CPP"), OEDockMethod.Chemgauss4, OESearchResolution.Standard,params.receptorFile)
     if(params.collapse > 0) {
       poses = poses.collapse(params.collapse)
     }  

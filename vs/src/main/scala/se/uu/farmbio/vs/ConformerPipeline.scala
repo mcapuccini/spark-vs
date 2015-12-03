@@ -1,21 +1,20 @@
 package se.uu.farmbio.vs
 
-import java.io.InputStream
-import org.apache.commons.lang.NotImplementedException
-import org.apache.spark.rdd.RDD
-import scala.io.Source
 import java.io.PrintWriter
-import scala.collection.JavaConverters._
+import scala.collection.JavaConverters.seqAsJavaListConverter
+import scala.io.Source
+import org.apache.spark.rdd.RDD
+import org.apache.spark.SparkFiles
 
 trait ConformerTransforms {
 
-  def dock(receptor: InputStream, method: Int, resolution: Int): SBVSPipeline with PoseTransforms
+  def dock(cppExePath: String, method: Int, resolution: Int, receptor: String): SBVSPipeline with PoseTransforms
   def repartition: SBVSPipeline with ConformerTransforms
 
 }
 
 private[vs] class ConformerPipeline(override val rdd: RDD[String])
-  extends SBVSPipeline(rdd) with ConformerTransforms {
+    extends SBVSPipeline(rdd) with ConformerTransforms {
 
   //The Spark built-in pipe splits molecules line by line, we need a custom one
   def pipe(command: List[String]) = {
@@ -43,33 +42,22 @@ private[vs] class ConformerPipeline(override val rdd: RDD[String])
       //Return results as a single string
       Source.fromInputStream(proc.getInputStream).mkString
     }
-    
+
     new ConformerPipeline(res)
 
   }
 
-  override def dock(receptor: InputStream, method: Int, resolution: Int) = {
+  override def dock(cppExePath: String, method: Int, resolution: Int, receptor: String) = {
     //    val receptorBytes = IOUtils.toByteArray(receptor)
     //    val bcastReceptor = sc.broadcast(receptorBytes)
     //    val res = rdd.flatMap(OEChemLambdas.oeDocking(bcastReceptor, method, resolution, oeErrorLevel))
-    //    new PosePipeline(res)
-    val cppExePath = "/home/laeeq/Desktop/spark-vs/docking-cpp/dockingstd"
-    val pipedRDD = rdd.pipe(cppExePath)
-
+    sc.addFile(receptor)
+    val receptorPath = SparkFiles.get(receptor)
+    val pipedRDD = this.pipe(List(cppExePath,method.toString(),resolution.toString(),receptorPath)).getMolecules
     val res = pipedRDD.flatMap(SBVSPipeline.splitSDFmolecules)
-
-    /*
-    val res = pipedRDD.collect()
-       
-     
-    val string = res.mkString("\n")
-    val res2 = SBVSPipeline.splitSDFmolecules(string)
-    val cppRDD = sc.makeRDD(res2)    
-    */
-
     new PosePipeline(res)
 
-    //throw new NotImplementedException("Needs to be reimplemented due to memory issue")
+    //throw new NotImplementedException("Needs to be re-implemented due to memory issue")
   }
 
   override def repartition() = {
