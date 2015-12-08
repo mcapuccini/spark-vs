@@ -1,10 +1,12 @@
 package se.uu.farmbio.vs
 
 import java.io.PrintWriter
+
 import scala.collection.JavaConverters.seqAsJavaListConverter
 import scala.io.Source
-import org.apache.spark.rdd.RDD
+
 import org.apache.spark.SparkFiles
+import org.apache.spark.rdd.RDD
 
 trait ConformerTransforms {
 
@@ -48,16 +50,10 @@ private[vs] class ConformerPipeline(override val rdd: RDD[String])
   }
 
   override def dock(cppExePath: String, method: Int, resolution: Int, receptor: String) = {
-    //    val receptorBytes = IOUtils.toByteArray(receptor)
-    //    val bcastReceptor = sc.broadcast(receptorBytes)
-    //    val res = rdd.flatMap(OEChemLambdas.oeDocking(bcastReceptor, method, resolution, oeErrorLevel))
     sc.addFile(receptor)
-    val receptorPath = SparkFiles.get(receptor)
-    val pipedRDD = this.pipe(List(cppExePath,method.toString(),resolution.toString(),receptorPath)).getMolecules
+    val pipedRDD = this.pipe(List(cppExePath, method.toString(), resolution.toString(), SparkFiles.get("receptor.oeb"))).getMolecules
     val res = pipedRDD.flatMap(SBVSPipeline.splitSDFmolecules)
     new PosePipeline(res)
-
-    //throw new NotImplementedException("Needs to be re-implemented due to memory issue")
   }
 
   override def repartition() = {
