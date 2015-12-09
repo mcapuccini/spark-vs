@@ -18,8 +18,8 @@ private object SBVSPipeline {
 
 }
 
-private[vs] class SBVSPipeline (protected val rdd: RDD[String]) extends Logging {
-  
+private[vs] class SBVSPipeline(protected val rdd: RDD[String]) extends Logging {
+
   def this(sc: SparkContext) = {
     this(sc.emptyRDD[String])
   }
@@ -28,8 +28,8 @@ private[vs] class SBVSPipeline (protected val rdd: RDD[String]) extends Logging 
   protected val defaultParallelism = sc.getConf.get("spark.default.parallelism", "2").toInt
   protected val oeErrorLevel =
     sc.getConf.get("oechem.error.level", OEErrorLevel.Error.toString).toInt
-  logDebug(s"OEChem error level is: $oeErrorLevel")  
-  
+  logDebug(s"OEChem error level is: $oeErrorLevel")
+
   def getMolecules = rdd
 
   def readSmilesRDDs(smiles: Seq[RDD[String]]): SBVSPipeline with SmilesTransforms = {

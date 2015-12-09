@@ -1,18 +1,17 @@
 package se.uu.farmbio.vs
 
 import java.io.PrintWriter
-import scala.collection.JavaConverters.seqAsJavaListConverter
-import scala.io.Source
-import org.apache.spark.SparkFiles
-import org.apache.spark.rdd.RDD
-import scala.reflect.io.Path
 import java.nio.file.Paths
 
-trait ConformerTransforms {
+import scala.collection.JavaConverters.seqAsJavaListConverter
+import scala.io.Source
 
+import org.apache.spark.SparkFiles
+import org.apache.spark.rdd.RDD
+
+trait ConformerTransforms {
   def dock(cppExePath: String, method: Int, resolution: Int, receptor: String): SBVSPipeline with PoseTransforms
   def repartition: SBVSPipeline with ConformerTransforms
-
 }
 
 private[vs] class ConformerPipeline(override val rdd: RDD[String])
@@ -44,9 +43,7 @@ private[vs] class ConformerPipeline(override val rdd: RDD[String])
       //Return results as a single string
       Source.fromInputStream(proc.getInputStream).mkString
     }
-
     new ConformerPipeline(res)
-
   }
 
   override def dock(cppExePath: String, method: Int, resolution: Int, receptor: String) = {
