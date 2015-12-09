@@ -16,7 +16,6 @@ case class Params(
   master: String = null,
   conformersFile: String = null,
   receptorFile: String = null,
-  cppExeFile: String = null,
   topPosesPath: String = null,
   size: String = "30",
   collapse: Int = 0)

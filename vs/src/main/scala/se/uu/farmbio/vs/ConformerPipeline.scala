@@ -50,8 +50,9 @@ private[vs] class ConformerPipeline(override val rdd: RDD[String])
   }
 
   override def dock(cppExePath: String, method: Int, resolution: Int, receptor: String) = {
+    sc.addFile(cppExePath)
     sc.addFile(receptor)
-    val pipedRDD = this.pipe(List(cppExePath, method.toString(), resolution.toString(), SparkFiles.get("receptor.oeb"))).getMolecules
+    val pipedRDD = this.pipe(List(SparkFiles.get("dockingstd"), method.toString(), resolution.toString(), SparkFiles.get("receptor.oeb"))).getMolecules
     val res = pipedRDD.flatMap(SBVSPipeline.splitSDFmolecules)
     new PosePipeline(res)
   }
