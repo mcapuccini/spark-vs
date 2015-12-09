@@ -1,12 +1,12 @@
 package se.uu.farmbio.vs
 
 import java.io.PrintWriter
-
 import scala.collection.JavaConverters.seqAsJavaListConverter
 import scala.io.Source
-
 import org.apache.spark.SparkFiles
 import org.apache.spark.rdd.RDD
+import scala.reflect.io.Path
+import java.nio.file.Paths
 
 trait ConformerTransforms {
 
@@ -52,7 +52,8 @@ private[vs] class ConformerPipeline(override val rdd: RDD[String])
   override def dock(cppExePath: String, method: Int, resolution: Int, receptor: String) = {
     sc.addFile(cppExePath)
     sc.addFile(receptor)
-    val pipedRDD = this.pipe(List(SparkFiles.get("dockingstd"), method.toString(), resolution.toString(), SparkFiles.get("receptor.oeb"))).getMolecules
+    val p = Paths.get(receptor)
+    val pipedRDD = this.pipe(List(SparkFiles.get("dockingstd"), method.toString(), resolution.toString(), SparkFiles.get(p.getFileName().toString()))).getMolecules
     val res = pipedRDD.flatMap(SBVSPipeline.splitSDFmolecules)
     new PosePipeline(res)
   }
