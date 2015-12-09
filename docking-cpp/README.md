@@ -10,3 +10,6 @@ While the rest of the project is in scala which uses OECHEM java libraries, the 
 
 We build a simple c++ docking and then pipped the c++ executable file to our scala application using spark's pipe method. 
 
+## Practicalities
+
+Please set DOCKING_CPP environment variable in the PATH to the dockingstd binary available at spark-vs/docking-cpp/bin/
