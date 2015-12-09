@@ -118,7 +118,7 @@ class SBVSPipelineTest extends FunSuite with BeforeAndAfterAll {
       .asInstanceOf[ConformerPipeline]
     
     //Try to count lines with wc
-    val wc = toPipe.pipe(List("wc", "-l", System.getenv("DOCKING_CPP"), OEDockMethod.Chemgauss4.toString(), OESearchResolution.Standard.toString(),getClass.getResource("receptor.oeb").getPath))
+    val wc = toPipe.pipe(List("wc", "-l"))
       .getMolecules
       .map(_.trim.toInt)
       .sum
