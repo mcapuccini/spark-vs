@@ -46,17 +46,17 @@ object ConformerPipeline {
 }
 
 private[vs] class ConformerPipeline(override val rdd: RDD[String])
-  extends SBVSPipeline(rdd) with ConformerTransforms {
+    extends SBVSPipeline(rdd) with ConformerTransforms {
 
   override def dock(receptorPath: String, method: Int, resolution: Int) = {
-    val dockingstdPath = System.getenv("DOCKINGSTD")
+    val dockingstdPath = System.getenv("DOCKING_CPP")
     sc.addFile(dockingstdPath)
     sc.addFile(receptorPath)
     val receptorFileName = Paths.get(receptorPath).getFileName.toString
-    val dockerstdFileName = Paths.get(dockingstdPath).getFileName.toString
+    val dockingstdFileName = Paths.get(dockingstdPath).getFileName.toString
     val pipedRDD = rdd.map { sdf =>
       ConformerPipeline.pipeString(sdf,
-        List(SparkFiles.get(dockerstdFileName), 
+        List(SparkFiles.get(dockingstdFileName),
           method.toString(),
           resolution.toString(),
           SparkFiles.get(receptorFileName)))

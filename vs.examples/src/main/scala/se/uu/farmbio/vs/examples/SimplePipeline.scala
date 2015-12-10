@@ -73,8 +73,8 @@ object SimplePipeline {
       .filter(OEFilterType.Lead)
       .generateConformers(0, 1) //generate 1 conformer per SMILES
       .saveAsTextFile(params.conformersPath)
-      .dock(params.cppExeFile, OEDockMethod.Chemgauss4,
-        OESearchResolution.Standard,"data/receptor.oeb")
+      .dock("data/receptor.oeb", OEDockMethod.Chemgauss4,
+        OESearchResolution.Standard)
       .sortByScore
       .getMolecules
       .take(10) //take first 10

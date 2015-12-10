@@ -110,7 +110,7 @@ class SBVSPipelineTest extends FunSuite with BeforeAndAfterAll {
     assert(resSet === filtTest)
 
   }
-
+  
   test("dock should dock a set of conformers to a receptor and generate the poses") {
 
     val res = new SBVSPipeline(sc)
@@ -120,7 +120,7 @@ class SBVSPipelineTest extends FunSuite with BeforeAndAfterAll {
       .getMolecules
       .collect
 
-    val filteredPoses = TestUtils.readSDF(getClass.getResource("filtered_poses.sdf").getPath)
+    val filteredPoses = TestUtils.readSDF(getClass.getResource("filtered_poses_cpp.sdf").getPath)
     assert(res.map(TestUtils.removeSDFheader).toSet
       === filteredPoses.map(TestUtils.removeSDFheader).toSet)
 
