@@ -12,7 +12,7 @@ trait PoseTransforms {
   
 }
 
-class PosePipeline[vs] (override val rdd: RDD[String]) extends SBVSPipeline(rdd)
+private[vs] class PosePipeline (override val rdd: RDD[String]) extends SBVSPipeline(rdd)
     with PoseTransforms {
 
     private def parseId = (pose: String) => {

@@ -1,6 +1,5 @@
 package se.uu.farmbio.vs.examples
 
-import java.io.FileInputStream
 import java.io.PrintWriter
 
 import org.apache.spark.Logging
@@ -71,20 +70,18 @@ object Docker extends Logging {
     val sc = new SparkContext(conf)
     sc.hadoopConfiguration.set("se.uu.farmbio.parsers.SDFRecordReader.size", params.size)
 
-    val receptorStream = new FileInputStream(params.receptorFile)
-
     val t0 = System.currentTimeMillis
     var poses = new SBVSPipeline(sc)
       .readConformerFile(params.conformersFile)
-      .dock(receptorStream, OEDockMethod.Chemgauss4, OESearchResolution.Standard)
-    if(params.collapse > 0) {
+      .dock(params.receptorFile, OEDockMethod.Chemgauss4, OESearchResolution.Standard)
+    if (params.collapse > 0) {
       poses = poses.collapse(params.collapse)
-    }  
-    val res = poses  
+    }
+    val res = poses
       .sortByScore
       .getMolecules
       .take(10) //take first 10
-    val t1 = System.currentTimeMillis  
+    val t1 = System.currentTimeMillis
     val elapsed = t1 - t0
     logInfo(s"pipeline took: $elapsed millisec.")
 

@@ -74,7 +74,7 @@ private[vs] object OEChemLambdas extends Logging {
 
   }
 
-  def oeOmega(maxCenters: Int, 
+  def oeOmega(maxCenters: Int,
               maxConformers: Int,
               errorLevel: Int) = (smiles: String) => {
 
@@ -163,7 +163,7 @@ private[vs] object OEChemLambdas extends Logging {
       oechem.OEWriteMolecule(omstr, dockedMol)
       mcmol.Clear
       dockedMol.Clear
-      size+=1
+      size += 1
     }
     logDebug(s"$size molecules successfully docked")
 

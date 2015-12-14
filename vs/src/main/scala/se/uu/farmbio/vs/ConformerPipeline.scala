@@ -1,26 +1,68 @@
 package se.uu.farmbio.vs
 
-import java.io.InputStream
+import java.io.PrintWriter
+import java.nio.file.Paths
 
-import org.apache.commons.lang.NotImplementedException
+import scala.collection.JavaConverters.seqAsJavaListConverter
+import scala.io.Source
+
+import org.apache.spark.SparkFiles
 import org.apache.spark.rdd.RDD
 
 trait ConformerTransforms {
-
-  def dock(receptor: InputStream, method: Int, resolution: Int): SBVSPipeline with PoseTransforms
+  def dock(receptorPath: String, method: Int, resolution: Int): SBVSPipeline with PoseTransforms
   def repartition: SBVSPipeline with ConformerTransforms
+}
+
+object ConformerPipeline {
+
+  //The Spark built-in pipe splits molecules line by line, we need a custom one
+  private def pipeString(str: String, command: List[String]) = {
+
+    //Start executable
+    val pb = new ProcessBuilder(command.asJava)
+    val proc = pb.start
+    // Start a thread to print the process's stderr to ours
+    new Thread("stderr reader") {
+      override def run() {
+        for (line <- Source.fromInputStream(proc.getErrorStream).getLines) {
+          System.err.println(line)
+        }
+      }
+    }.start
+    // Start a thread to feed the process input 
+    new Thread("stdin writer") {
+      override def run() {
+        val out = new PrintWriter(proc.getOutputStream)
+        out.println(str)
+        out.close()
+      }
+    }.start
+    //Return results as a single string
+    Source.fromInputStream(proc.getInputStream).mkString
+
+  }
 
 }
 
-class ConformerPipeline[vs](override val rdd: RDD[String])
-  extends SBVSPipeline(rdd) with ConformerTransforms {
-    
-  override def dock(receptor: InputStream, method: Int, resolution: Int) = {
-//    val receptorBytes = IOUtils.toByteArray(receptor)
-//    val bcastReceptor = sc.broadcast(receptorBytes)
-//    val res = rdd.flatMap(OEChemLambdas.oeDocking(bcastReceptor, method, resolution, oeErrorLevel))
-//    new PosePipeline(res)
-      throw new NotImplementedException("Needs to be reimplemented due to memory issue")
+private[vs] class ConformerPipeline(override val rdd: RDD[String])
+    extends SBVSPipeline(rdd) with ConformerTransforms {
+
+  override def dock(receptorPath: String, method: Int, resolution: Int) = {
+    val dockingstdPath = System.getenv("DOCKING_CPP")
+    sc.addFile(dockingstdPath)
+    sc.addFile(receptorPath)
+    val receptorFileName = Paths.get(receptorPath).getFileName.toString
+    val dockingstdFileName = Paths.get(dockingstdPath).getFileName.toString
+    val pipedRDD = rdd.map { sdf =>
+      ConformerPipeline.pipeString(sdf,
+        List(SparkFiles.get(dockingstdFileName),
+          method.toString(),
+          resolution.toString(),
+          SparkFiles.get(receptorFileName)))
+    }
+    val res = pipedRDD.flatMap(SBVSPipeline.splitSDFmolecules)
+    new PosePipeline(res)
   }
 
   override def repartition() = {
