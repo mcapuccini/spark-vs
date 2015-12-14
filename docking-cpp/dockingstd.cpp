@@ -15,7 +15,7 @@ int main(int numOfArg, char* argv[])
 {
 	OEGraphMol receptor;
 	OEReadReceptorFile(receptor, argv[3]);
-    unsigned int dockMethod = atoi(argv[1]);
+    	unsigned int dockMethod = atoi(argv[1]);
 	unsigned int dockResolution = atoi(argv[2]);
 	OEDock dock(dockMethod, dockResolution);
 	dock.Initialize(receptor);
