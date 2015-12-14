@@ -42,7 +42,7 @@ object Docker extends Logging {
         .action((x, c) => c.copy(conformersFile = x))
       arg[String]("<receptor-file>")
         .required()
-        .text("path to input receptor file")
+        .text("path to input OEB receptor file")
         .action((x, c) => c.copy(receptorFile = x))
       arg[String]("<top-poses-path>")
         .required()

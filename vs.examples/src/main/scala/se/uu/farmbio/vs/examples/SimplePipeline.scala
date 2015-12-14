@@ -16,7 +16,7 @@ object SimplePipeline {
 
   case class Params(
     master: String = null,
-    cppExeFile: String = null,
+    receptorFile: String = null,
     topPosesPath: String = null,
     smilesFile: String = null,
     conformersPath: String = null)
@@ -30,10 +30,10 @@ object SimplePipeline {
       opt[String]("master")
         .text("spark master")
         .action((x, c) => c.copy(master = x))
-      arg[String]("<CPP-EXE-file>")
+      arg[String]("<input-receptor-file>")
         .required()
-        .text("path to input cpp Executable file")
-        .action((x, c) => c.copy(cppExeFile = x))
+        .text("path to input OEB receptor file")
+        .action((x, c) => c.copy(receptorFile = x))
       arg[String]("<input-smiles-file>")
         .required()
         .text("path to input SMILES file")
@@ -73,7 +73,7 @@ object SimplePipeline {
       .filter(OEFilterType.Lead)
       .generateConformers(0, 1) //generate 1 conformer per SMILES
       .saveAsTextFile(params.conformersPath)
-      .dock("data/receptor.oeb", OEDockMethod.Chemgauss4,
+      .dock(params.receptorFile, OEDockMethod.Chemgauss4,
         OESearchResolution.Standard)
       .sortByScore
       .getMolecules
