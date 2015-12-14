@@ -120,7 +120,7 @@ class SBVSPipelineTest extends FunSuite with BeforeAndAfterAll {
       .getMolecules
       .collect
 
-    val filteredPoses = TestUtils.readSDF(getClass.getResource("filtered_poses_cpp.sdf").getPath)
+    val filteredPoses = TestUtils.readSDF(getClass.getResource("new_pose_file.sdf").getPath)
     assert(res.map(TestUtils.removeSDFheader).toSet
       === filteredPoses.map(TestUtils.removeSDFheader).toSet)
 
