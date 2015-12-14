@@ -37,4 +37,4 @@ stopBuildOnError=true
 target=jvm-1.6
 unchecked=false
 verbose=false
-
+withVersionClasspathValidator=true
