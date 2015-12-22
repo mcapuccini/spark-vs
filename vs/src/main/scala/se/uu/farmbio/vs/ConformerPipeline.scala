@@ -2,16 +2,17 @@ package se.uu.farmbio.vs
 
 import java.io.PrintWriter
 import java.nio.file.Paths
-
 import scala.collection.JavaConverters.seqAsJavaListConverter
 import scala.io.Source
-
 import org.apache.spark.SparkFiles
 import org.apache.spark.rdd.RDD
+import org.apache.spark.mllib.regression.LabeledPoint
+import se.uu.farmbio.sg.SGUtils
 
 trait ConformerTransforms {
   def dock(receptorPath: String, method: Int, resolution: Int): SBVSPipeline with PoseTransforms
   def repartition: SBVSPipeline with ConformerTransforms
+  def generateSignatures(): ConformersWithSignsTransforms
 }
 
 object ConformerPipeline {
@@ -61,8 +62,20 @@ private[vs] class ConformerPipeline(override val rdd: RDD[String])
           resolution.toString(),
           SparkFiles.get(receptorFileName)))
     }
+
     val res = pipedRDD.flatMap(SBVSPipeline.splitSDFmolecules)
     new PosePipeline(res)
+  }
+
+  def generateSignatures = {
+    val molsCount = rdd.count()
+    val molsWithIndex = rdd.zipWithIndex()
+    val molsAfterSG = molsWithIndex.flatMap { case (mol, index) => Sdf2LibSVM.sdf2signatures(mol, index + 1, molsCount) } //Compute signatures
+      .cache
+    val (result, sig2ID_universe) = SGUtils.sig2ID_carryData(molsAfterSG)
+    val resultAsLP: RDD[(Long, LabeledPoint)] = SGUtils.sig2LP_carryData(result)
+
+    new ConformersWithSigns(resultAsLP)
   }
 
   override def repartition() = {
