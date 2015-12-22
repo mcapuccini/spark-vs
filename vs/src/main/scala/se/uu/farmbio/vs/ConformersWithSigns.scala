@@ -8,18 +8,19 @@ import scala.io.Source
 
 import org.apache.spark.SparkFiles
 import org.apache.spark.rdd.RDD
+import org.apache.spark.mllib.regression.LabeledPoint
+import org.apache.spark.mllib.util.MLUtils
 
 trait ConformersWithSignsTransforms {
- 
+  def saveAsSignatureFile(path: String)
 }
 
-object ConformerWithSigns {
+private[vs] class ConformersWithSigns(val rdd: RDD[(Long, LabeledPoint)])
+    extends ConformersWithSignsTransforms {
 
-private[vs] class ConformersWithSigns(override val rdd: RDD[String])
-    extends SBVSPipeline(rdd) with ConformersWithSignsTransforms {
-
-  
-
-}
+  def saveAsSignatureFile(path: String) = {
+    MLUtils.saveAsLibSVMFile(rdd.map(indexAndLabeledSignature => indexAndLabeledSignature._2), path)
+  }
 
 }
+
