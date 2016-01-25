@@ -11,15 +11,14 @@ import openeye.oedocking.OESearchResolution
 import scopt.OptionParser
 import se.uu.farmbio.vs.SBVSPipeline
 
-case class Params(
-  master: String = null,
-  conformersFile: String = null,
-  receptorFile: String = null,
-  topPosesPath: String = null,
-  size: String = "30",
-  collapse: Int = 0)
-
 object Docker extends Logging {
+  case class Params(
+    master: String = null,
+    conformersFile: String = null,
+    receptorFile: String = null,
+    topPosesPath: String = null,
+    size: String = "30",
+    collapse: Int = 0)
 
   def main(args: Array[String]) {
 

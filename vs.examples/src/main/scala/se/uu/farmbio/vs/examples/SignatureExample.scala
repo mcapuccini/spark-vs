@@ -11,12 +11,12 @@ import se.uu.farmbio.vs.SBVSPipeline
  * @author laeeq
  */
 
-case class Arglist(
-  master: String = null,
-  conformersFile: String = null,
-  signatureOutputFile: String = null)
-
 object SignatureExample extends Logging {
+
+  case class Arglist(
+    master: String = null,
+    conformersFile: String = null,
+    signatureOutputFile: String = null)
 
   def main(args: Array[String]) {
     val defaultParams = Arglist()
