@@ -30,6 +30,7 @@ int main(int numOfArg, char* argv[])
 	OEMol mcmol;
 
 	//Scoring the molecules in SDF File
+<<<<<<< HEAD
 	         while (OEReadMolecule(imstr, mcmol))
 	         {
 	           OEGraphMol dockedMol;
@@ -43,4 +44,23 @@ int main(int numOfArg, char* argv[])
 	         }
 		
   return 0;
+=======
+	while (OEReadMolecule(imstr, mcmol))
+		{
+	           OEGraphMol dockedMol;
+	           unsigned int retcode;
+		   retcode = dock.DockMultiConformerMolecule(dockedMol,mcmol);
+	           if (retcode==OEDockingReturnCode::Success)
+		   	{	
+		   		string sdtag = OEDockMethodGetName(dockMethod);
+	           		OESetSDScore(dockedMol, dock, sdtag);
+	           		dock.AnnotatePose(dockedMol);
+	           		//Writing moles to the SDF File with Scores
+	           		OEWriteMolecule(omstr, dockedMol);
+			}
+		   else continue;
+	         }
+		
+  	return 0;
+>>>>>>> modified dockingstd.cpp and dockingstd. Only allow succesfully docked mols. Rest are neglected. A single unsuccessful mol added to conformers_with_failed_mol.sdf for testing purpose. Tests also updated accordingly.
 }
