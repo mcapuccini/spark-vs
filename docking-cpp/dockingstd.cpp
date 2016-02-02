@@ -28,19 +28,22 @@ int main(int numOfArg, char* argv[])
 	omstr.SetFormat(OEFormat::SDF);	
 
 	OEMol mcmol;
+	unsigned int retcode;
 
 	//Scoring the molecules in SDF File
-	         while (OEReadMolecule(imstr, mcmol))
-	         {
+	while (OEReadMolecule(imstr, mcmol))
+		{
 	           OEGraphMol dockedMol;
-	           dock.DockMultiConformerMolecule(dockedMol,mcmol);
-	           string sdtag = OEDockMethodGetName(dockMethod);
-	           OESetSDScore(dockedMol, dock, sdtag);
-	           dock.AnnotatePose(dockedMol);
-	           //Writing moles to the SDF File with Scores
-	           OEWriteMolecule(omstr, dockedMol);
-
+		   retcode = dock.DockMultiConformerMolecule(dockedMol,mcmol);
+	           if (retcode==OEDockingReturnCode::Success)
+		   	{	
+		   		string sdtag = OEDockMethodGetName(dockMethod);
+	           		OESetSDScore(dockedMol, dock, sdtag);
+	           		dock.AnnotatePose(dockedMol);
+	           		//Writing moles to the SDF File with Scores
+	           		OEWriteMolecule(omstr, dockedMol);
+			}
 	         }
-		
-  return 0;
+
+  	return 0;
 }
