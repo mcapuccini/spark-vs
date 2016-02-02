@@ -110,12 +110,12 @@ class SBVSPipelineTest extends FunSuite with BeforeAndAfterAll {
     assert(resSet === filtTest)
 
   }
-  
+
   test("dock should dock a set of conformers to a receptor and generate the poses") {
 
     val res = new SBVSPipeline(sc)
       .readConformerFile(getClass.getResource("conformers_with_failed_mol.sdf").getPath)
-      .dock(getClass.getResource("receptor.oeb").getPath, 
+      .dock(getClass.getResource("receptor.oeb").getPath,
         OEDockMethod.Chemgauss4, OESearchResolution.Standard)
       .getMolecules
       .collect
