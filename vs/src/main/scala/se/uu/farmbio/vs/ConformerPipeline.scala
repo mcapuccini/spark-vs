@@ -68,14 +68,8 @@ private[vs] class ConformerPipeline(override val rdd: RDD[String])
   }
 
   def generateSignatures = {
-    val molsCount = rdd.count()
-    val molsWithIndex = rdd.zipWithIndex()
-    val molsAfterSG = molsWithIndex.flatMap { case (mol, index) => Sdf2LibSVM.sdf2signatures(mol, index + 1, molsCount) } //Compute signatures
-      .cache
-    val (result, sig2ID_universe) = SGUtils.sig2ID_carryData(molsAfterSG)
-    val resultAsLP: RDD[(Long, LabeledPoint)] = SGUtils.sig2LP_carryData(result)
-
-    new ConformersWithSigns(resultAsLP)
+    val molAndSign = rdd.flatMap { sdfRecord => Sdf2LibSVM.sdf2signatures(sdfRecord) } //Compute signatures
+    new ConformersWithSigns(molAndSign)
   }
 
   override def repartition() = {
