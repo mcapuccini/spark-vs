@@ -6,16 +6,17 @@ import org.openscience.cdk.tools.manipulator.ChemFileManipulator
 import java.io.ByteArrayInputStream
 import org.openscience.cdk.silent.ChemFile
 import se.uu.farmbio.sg.SGUtils
-import se.uu.farmbio.sg.types.SignatureRecordDecision
+import se.uu.farmbio.sg.types.SignatureRecord
+import org.openscience.cdk.interfaces.IAtomContainer
 
 /**
  * @author laeeq
  */
 private[vs] object Sdf2LibSVM {
 
-  def sdf2signatures = (poses: String, index: Long, molCount: Long) => {
+  def sdf2signatures = (sdfRecord: String) => {
     //get SDF as input stream
-    val sdfByteArray = poses
+    val sdfByteArray = sdfRecord
       .getBytes(Charset.forName("UTF-8"))
     val sdfIS = new ByteArrayInputStream(sdfByteArray)
     //Parse SDF
@@ -26,22 +27,18 @@ private[vs] object Sdf2LibSVM {
 
     val it = mols.iterator
 
-    var res = Seq[(Long, SignatureRecordDecision)]()
+    var res = Seq[(String,String)]()
 
     while (it.hasNext()) {
       //for each molecule in the record compute the signature
       val mol = it.next
-      val label = index.toDouble match { //convert labels
-        case x if x <= (molCount / 2) => 1.0
-        case _                        => 0.0
-      }
       
-      // Signature generation with decision labels
-      val sig = (index, SGUtils.atom2SigRecordDecision(mol, label.toDouble, 1, 3))
-      res = res ++ Seq(sig)
+      // Molecules and their respective Signatures
+      val molAndSig = (mol.toString() , SGUtils.atom2SigRecord(mol, 1, 3).toString())
+      res = res ++ Seq(molAndSig)
 
     }
-    res //return the results
+    res //return the molecules and signatures
   }
 
 }
