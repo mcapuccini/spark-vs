@@ -16,13 +16,16 @@ import se.uu.farmbio.cp.alg.GBT
 import org.openscience.cdk.interfaces.IAtomContainer
 import se.uu.farmbio.sg.types.SignatureRecord
 
-trait ConformersWithSignsTransforms {
+/*trait ConformersWithSignsTransforms {
   def saveAsSignatureFile(path: String)
+  
 
-}
+}*/
 
-private[vs] class ConformersWithSigns(val rdd: RDD[(String, String)])
-    extends ConformersWithSignsTransforms {
+private[vs] class ConformersWithSigns(val rdd: RDD[(String, String)]) /*extends ConformersWithSignsTransforms*/ {
+
+  def getSignatures() = rdd.map{case (mol,sign) => sign}
+  //def getSignatures() = rdd
 
   def saveAsSignatureFile(path: String) = {
     //rdd.map{case (mol,sign) => sign}.saveAsTextFile(path)

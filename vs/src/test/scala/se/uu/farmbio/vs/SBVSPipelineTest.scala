@@ -11,6 +11,12 @@ import openeye.oemolprop.OEFilterType
 import se.uu.farmbio.parsers.SDFRecordReader
 import se.uu.farmbio.parsers.SmilesRecordReader
 import org.scalatest.junit.JUnitRunner
+import se.uu.farmbio.sg.SGUtils
+import java.io.ByteArrayInputStream
+import java.nio.charset.Charset
+import org.openscience.cdk.tools.manipulator.ChemFileManipulator
+import org.openscience.cdk.io.MDLV2000Reader
+import org.openscience.cdk.silent.ChemFile
 
 @RunWith(classOf[JUnitRunner])
 class SBVSPipelineTest extends FunSuite with BeforeAndAfterAll {
@@ -115,7 +121,7 @@ class SBVSPipelineTest extends FunSuite with BeforeAndAfterAll {
 
     val res = new SBVSPipeline(sc)
       .readConformerFile(getClass.getResource("conformers_with_failed_mol.sdf").getPath)
-      .dock(getClass.getResource("receptor.oeb").getPath, 
+      .dock(getClass.getResource("receptor.oeb").getPath,
         OEDockMethod.Chemgauss4, OESearchResolution.Standard)
       .getMolecules
       .collect
@@ -123,6 +129,39 @@ class SBVSPipelineTest extends FunSuite with BeforeAndAfterAll {
     val filteredPoses = TestUtils.readSDF(getClass.getResource("new_pose_file.sdf").getPath)
     assert(res.map(TestUtils.removeSDFheader).toSet
       === filteredPoses.map(TestUtils.removeSDFheader).toSet)
+
+  }
+
+  test("generateSignatures should generate molecule signatures from the conformer file") {
+
+    val parallelSign = new SBVSPipeline(sc)
+      .readConformerFile(getClass.getResource("one.sdf").getPath)
+      .generateSignatures().getSignatures().collect()
+
+    val sdfByteArray = TestUtils.readSDF(getClass.getResource("one.sdf").getPath).toString()
+      .getBytes(Charset.forName("UTF-8"))
+
+    val sdfIS = new ByteArrayInputStream(sdfByteArray)
+    val reader = new MDLV2000Reader(sdfIS)
+    val chemFile = reader.read(new ChemFile)
+    val mols = ChemFileManipulator.getAllAtomContainers(chemFile)
+    //mols is a Java list :-(
+
+    val it = mols.iterator
+
+    var res = Seq[(String)]()
+
+    while (it.hasNext()) {
+      //for each molecule in the record compute the signature
+      val mol = it.next
+
+      // Molecules and their respective Signatures
+      val molAndSig = SGUtils.atom2SigRecord(mol, 1, 3).toString()
+      res = res ++ Seq(molAndSig)
+    }
+
+    assert(parallelSign.toSet
+      === res.toSet)
 
   }
 

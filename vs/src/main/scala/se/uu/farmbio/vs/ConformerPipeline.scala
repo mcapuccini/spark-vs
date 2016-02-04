@@ -12,7 +12,7 @@ import se.uu.farmbio.sg.SGUtils
 trait ConformerTransforms {
   def dock(receptorPath: String, method: Int, resolution: Int): SBVSPipeline with PoseTransforms
   def repartition: SBVSPipeline with ConformerTransforms
-  def generateSignatures(): ConformersWithSignsTransforms
+  def generateSignatures(): ConformersWithSigns
 }
 
 object ConformerPipeline {
