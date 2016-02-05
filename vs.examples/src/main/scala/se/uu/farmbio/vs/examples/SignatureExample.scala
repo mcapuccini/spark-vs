@@ -21,7 +21,7 @@ object SignatureExample extends Logging {
   def main(args: Array[String]) {
     val defaultParams = Arglist()
     val parser = new OptionParser[Arglist]("Signature-Example") {
-      head("Signature-Example: Shows that signature generation working properly")
+      head("SignatureExample: a pipeline to generate molecular signatures from conformers.")
       opt[String]("master")
         .text("spark master")
         .action((x, c) => c.copy(master = x))
@@ -29,9 +29,9 @@ object SignatureExample extends Logging {
         .required()
         .text("path to input SDF conformers file")
         .action((x, c) => c.copy(conformersFile = x))
-      arg[String]("<Signature-Output-File>")
+      arg[String]("<signature-output-file>")
         .required()
-        .text("path to Output Signature file")
+        .text("path to output signature file")
         .action((x, c) => c.copy(signatureOutputFile = x))
     }
 

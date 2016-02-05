@@ -2,12 +2,12 @@ package se.uu.farmbio.vs
 
 import java.io.PrintWriter
 import java.nio.file.Paths
+
 import scala.collection.JavaConverters.seqAsJavaListConverter
 import scala.io.Source
+
 import org.apache.spark.SparkFiles
 import org.apache.spark.rdd.RDD
-import org.apache.spark.mllib.regression.LabeledPoint
-import se.uu.farmbio.sg.SGUtils
 
 trait ConformerTransforms {
   def dock(receptorPath: String, method: Int, resolution: Int): SBVSPipeline with PoseTransforms

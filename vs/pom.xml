@@ -40,11 +40,6 @@
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
-			<groupId>se.uu.farmbio</groupId>
-			<artifactId>cp</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
 			<groupId>OpenEye</groupId>
 			<artifactId>java_api</artifactId>
 			<version>2015Feb3-SNAPSHOT</version>
