@@ -11,15 +11,15 @@ import openeye.oedocking.OESearchResolution
 import scopt.OptionParser
 import se.uu.farmbio.vs.SBVSPipeline
 
-case class Params(
-  master: String = null,
-  conformersFile: String = null,
-  receptorFile: String = null,
-  topPosesPath: String = null,
-  size: String = "30",
-  collapse: Int = 0)
-
 object Docker extends Logging {
+  case class Params(
+    master: String = null,
+    conformersFile: String = null,
+    receptorFile: String = null,
+    topPosesPath: String = null,
+    size: String = "30",
+    sampleSize: Double = 1.0,
+    collapse: Int = 0)
 
   def main(args: Array[String]) {
 
@@ -33,6 +33,9 @@ object Docker extends Logging {
       opt[String]("size")
         .text("it controls how many molecules are handled within a task (default: 30).")
         .action((x, c) => c.copy(size = x))
+      opt[String]("sampleSize")
+        .text("it suggests the size of sample from all molecules (default: 1.0 means all).")
+        .action((x, c) => c.copy(sampleSize = x.toDouble))
       opt[String]("master")
         .text("spark master")
         .action((x, c) => c.copy(master = x))
@@ -69,10 +72,18 @@ object Docker extends Logging {
     }
     val sc = new SparkContext(conf)
     sc.hadoopConfiguration.set("se.uu.farmbio.parsers.SDFRecordReader.size", params.size)
-
     val t0 = System.currentTimeMillis
-    var poses = new SBVSPipeline(sc)
+
+    var sampleRDD = new SBVSPipeline(sc)
       .readConformerFile(params.conformersFile)
+      .getMolecules
+
+    if (params.sampleSize < 1.0) { //Samples Data on the basis of sampleSize Parameter
+      sampleRDD = sampleRDD.sample(false, params.sampleSize) //Does not take effect for complete set
+    }
+
+    var poses = new SBVSPipeline(sc)
+      .readConformerRDDs(Seq(sampleRDD))
       .dock(params.receptorFile, OEDockMethod.Chemgauss4, OESearchResolution.Standard)
     if (params.collapse > 0) {
       poses = poses.collapse(params.collapse)
@@ -80,7 +91,7 @@ object Docker extends Logging {
     val res = poses
       .sortByScore
       .getMolecules
-      .take(10) //take first 10
+      .take(19) //take first 10
     val t1 = System.currentTimeMillis
     val elapsed = t1 - t0
     logInfo(s"pipeline took: $elapsed millisec.")
