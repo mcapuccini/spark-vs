@@ -34,7 +34,8 @@ object Docker extends Logging {
         .text("it controls how many molecules are handled within a task (default: 30).")
         .action((x, c) => c.copy(size = x))
       opt[String]("sampleSize")
-        .text("it suggests the size of sample from all molecules (default: 1.0 means all).")
+        .text("it reduces the input size to the specified fraction (default: 1.0, means no reduction). " +
+          "It can be used to evaluate scalability.")
         .action((x, c) => c.copy(sampleSize = x.toDouble))
       opt[String]("master")
         .text("spark master")
