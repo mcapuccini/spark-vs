@@ -35,6 +35,8 @@ private[vs] object Sdf2LibSVM {
       
       // Molecules and their respective Signatures
       val molAndSig = (mol.toString() , SGUtils.atom2SigRecord(mol, 1, 3).toString())
+      val Sig = SGUtils.atom2SigRecord(mol, 1, 3).toString()
+       
       res = res ++ Seq(molAndSig)
 
     }
