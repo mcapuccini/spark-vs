@@ -18,6 +18,10 @@ object Docker extends Logging {
     receptorFile: String = null,
     topPosesPath: String = null,
     size: String = "30",
+<<<<<<< HEAD
+=======
+    sampleSize: Double = 1.0,
+>>>>>>> origin/master
     collapse: Int = 0)
 
   def main(args: Array[String]) {
@@ -32,6 +36,10 @@ object Docker extends Logging {
       opt[String]("size")
         .text("it controls how many molecules are handled within a task (default: 30).")
         .action((x, c) => c.copy(size = x))
+      opt[String]("sampleSize")
+        .text("it reduces the input size to the specified fraction (default: 1.0, means no reduction). " +
+          "It can be used to evaluate scalability.")
+        .action((x, c) => c.copy(sampleSize = x.toDouble))
       opt[String]("master")
         .text("spark master")
         .action((x, c) => c.copy(master = x))
@@ -70,8 +78,16 @@ object Docker extends Logging {
     sc.hadoopConfiguration.set("se.uu.farmbio.parsers.SDFRecordReader.size", params.size)
 
     val t0 = System.currentTimeMillis
-    var poses = new SBVSPipeline(sc)
+    var sampleRDD = new SBVSPipeline(sc)
       .readConformerFile(params.conformersFile)
+      .getMolecules
+
+    if (params.sampleSize < 1.0) { //Samples Data on the basis of sampleSize Parameter
+      sampleRDD = sampleRDD.sample(false, params.sampleSize) //Does not take effect for complete set
+    }
+
+    var poses = new SBVSPipeline(sc)
+      .readConformerRDDs(Seq(sampleRDD))
       .dock(params.receptorFile, OEDockMethod.Chemgauss4, OESearchResolution.Standard)
     if (params.collapse > 0) {
       poses = poses.collapse(params.collapse)
