@@ -18,10 +18,7 @@ object Docker extends Logging {
     receptorFile: String = null,
     topPosesPath: String = null,
     size: String = "30",
-<<<<<<< HEAD
-=======
     sampleSize: Double = 1.0,
->>>>>>> origin/master
     collapse: Int = 0)
 
   def main(args: Array[String]) {

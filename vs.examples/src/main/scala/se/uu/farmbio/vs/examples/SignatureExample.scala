@@ -56,8 +56,7 @@ object SignatureExample extends Logging {
     val signatures = new SBVSPipeline(sc)
       .readConformerFile(params.conformersFile)
       .generateSignatures()
-      .saveAsSignatureFile(params.signatureOutputFile)
-
+      .saveAsTextFile(params.signatureOutputFile)
     sc.stop()
 
   }

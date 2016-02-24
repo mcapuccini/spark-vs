@@ -131,7 +131,7 @@ class SBVSPipelineTest extends FunSuite with BeforeAndAfterAll {
       === filteredPoses.map(TestUtils.removeSDFheader).toSet)
 
   }
-
+/*
   test("generateSignatures should generate molecule signatures from the conformer file") {
 
     val parallelSign = new SBVSPipeline(sc)
@@ -163,7 +163,7 @@ class SBVSPipelineTest extends FunSuite with BeforeAndAfterAll {
     assert(parallelSign.toSet
       === res.toSet)
 
-  }
+  }*/
 
   override def afterAll() {
     sc.stop()
