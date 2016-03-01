@@ -2,16 +2,19 @@ package se.uu.farmbio.vs
 
 import java.io.PrintWriter
 import java.nio.file.Paths
-
 import scala.collection.JavaConverters.seqAsJavaListConverter
 import scala.io.Source
-
 import org.apache.spark.SparkFiles
 import org.apache.spark.rdd.RDD
+import se.uu.farmbio.sg.SGUtils
+import org.openscience.cdk.interfaces.IAtomContainer
+import org.apache.spark.mllib.regression.LabeledPoint
+import org.apache.spark.SparkContext._
 
 trait ConformerTransforms {
   def dock(receptorPath: String, method: Int, resolution: Int): SBVSPipeline with PoseTransforms
   def repartition: SBVSPipeline with ConformerTransforms
+  def generateSignatures(): SBVSPipeline with ConformersWithSignsTransforms
 }
 
 object ConformerPipeline {
@@ -61,8 +64,39 @@ private[vs] class ConformerPipeline(override val rdd: RDD[String])
           resolution.toString(),
           SparkFiles.get(receptorFileName)))
     }
+
     val res = pipedRDD.flatMap(SBVSPipeline.splitSDFmolecules)
     new PosePipeline(res)
+  }
+  /*
+  override def generateSignatures = {
+    val molsRDD = rdd.flatMap { mol => Sdf2LibSVM.SdfStringToIAtomContainer(mol) }
+    val molsWithID = molsRDD.zipWithUniqueId()
+    val molsWithCarryAndLabels = molsWithID.map{case(mol,id)=>(id, 0.0, mol)}
+    val (lps, mapping) = SGUtils.atoms2LP_UpdateSignMapCarryData(molsWithCarryAndLabels, null, 1, 3)
+    val idAndParseVector = lps.map { case (id, lp) => (id, lp.features.toSparse.toString()) }
+    val idAndMols = molsWithID.map{x=>x.swap}
+  
+    
+    new ConformersWithSignsPipeline(idAndMols.map(x=>x.toString()))
+  }
+  */
+
+  override def generateSignatures = {
+    //Give ids to SDFMols. Ids used later for joining signature vector with mol.
+    val idAndSdfMols = rdd.flatMap { mol => SBVSPipeline.splitSDFmolecules(mol) }.zipWithUniqueId().map { x => x.swap } 
+    //Converts string to IAtomContainer which is required for SG library
+    val molsRDD = idAndSdfMols.flatMapValues { case (mol) => Sdf2LibSVM.SdfStringToIAtomContainer(mol) }
+    //Follwing steps perform Signature generation
+    val molsWithCarryAndLabels = molsRDD.map { case (id, mol) => (id, 0.0, mol) }
+    val (lps, mapping) = SGUtils.atoms2LP_UpdateSignMapCarryData(molsWithCarryAndLabels, null, 1, 3)
+    //Give id for ginature vector.
+    val idAndParseVector = lps.map { case (id, lp) => (id, lp.features.toSparse.toString()) }
+    //Joining mol and vector based on id.
+    val joinedRDD = idAndSdfMols.join(idAndParseVector)
+    //We don't need ids anymore. 
+    val res = joinedRDD.map { case (id, (mol, sign)) => (mol, sign).toString() }
+    new ConformersWithSignsPipeline(res)
   }
 
   override def repartition() = {
