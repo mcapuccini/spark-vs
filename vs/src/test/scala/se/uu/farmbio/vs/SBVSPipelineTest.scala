@@ -1,5 +1,7 @@
 package se.uu.farmbio.vs
 
+import java.io.PrintWriter
+
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
 import org.junit.runner.RunWith
@@ -131,14 +133,25 @@ class SBVSPipelineTest extends FunSuite with BeforeAndAfterAll {
       === filteredPoses.map(TestUtils.removeSDFheader).toSet)
 
   }
-/*
+
+  
+  
   test("generateSignatures should generate molecule signatures from the conformer file") {
 
-    val parallelSign = new SBVSPipeline(sc)
-      .readConformerFile(getClass.getResource("one.sdf").getPath)
-      .generateSignatures().getSignatures().collect()
-
-    val sdfByteArray = TestUtils.readSDF(getClass.getResource("one.sdf").getPath).toString()
+    val res = new SBVSPipeline(sc)
+      .readConformerFile(getClass.getResource("conformers_with_failed_mol.sdf").getPath)
+      .generateSignatures()
+      .getMolecules
+      .collect()
+      
+    val pw = new PrintWriter("data/test.sdf")
+    res.foreach(pw.println(_))
+    pw.close
+    
+    
+    
+      /*
+      val sdfByteArray = TestUtils.readSDF(getClass.getResource("conformers_with_failed_mol.sdf").getPath).toString()
       .getBytes(Charset.forName("UTF-8"))
 
     val sdfIS = new ByteArrayInputStream(sdfByteArray)
@@ -162,8 +175,8 @@ class SBVSPipelineTest extends FunSuite with BeforeAndAfterAll {
 
     assert(parallelSign.toSet
       === res.toSet)
-
-  }*/
+*/
+  }
 
   override def afterAll() {
     sc.stop()
