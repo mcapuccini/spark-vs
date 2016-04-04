@@ -18,7 +18,6 @@ import java.nio.charset.Charset
 import org.openscience.cdk.tools.manipulator.ChemFileManipulator
 import org.openscience.cdk.io.MDLV2000Reader
 import org.openscience.cdk.silent.ChemFile
-import org.apache.spark.mllib.linalg.SparseVector
 
 @RunWith(classOf[JUnitRunner])
 class SBVSPipelineTest extends FunSuite with BeforeAndAfterAll {
@@ -32,8 +31,6 @@ class SBVSPipelineTest extends FunSuite with BeforeAndAfterAll {
   sc.hadoopConfiguration.set(SDFRecordReader.SIZE_PROPERTY_NAME, "3")
   sc.hadoopConfiguration.set(SmilesRecordReader.SIZE_PROPERTY_NAME, "3")
 
-  
-  
   test("sortByScore should sort a set of poses by score") {
 
     val res = new SBVSPipeline(sc)
@@ -135,7 +132,7 @@ class SBVSPipelineTest extends FunSuite with BeforeAndAfterAll {
       === dockedMolecules.map(TestUtils.removeSDFheader).toSet)
 
   }
-  
+
   /*
   test("Docking of 1000 molecules both in Parallel and serial should be same") {
 
@@ -152,8 +149,7 @@ class SBVSPipelineTest extends FunSuite with BeforeAndAfterAll {
 
   }
  */
-  
-  
+
   test("generateSignatures should generate non-Null molecule signatures from conformers file") {
 
     val parallelSign = new SBVSPipeline(sc)
@@ -161,19 +157,18 @@ class SBVSPipelineTest extends FunSuite with BeforeAndAfterAll {
       .generateSignatures()
       .getMolecules
       .collect()
-          
-    assert(parallelSign.exists(_.trim.nonEmpty))  
-    }
-    
-   
-    test("generateSignatures should generate molecule signatures in expected format i.e. SparseVector") {
+
+    assert(parallelSign.exists(_.trim.nonEmpty))
+  }
+
+  test("generateSignatures should generate molecule signatures in expected format i.e. SparseVector") {
 
     val signatures = new SBVSPipeline(sc)
       .readConformerFile(getClass.getResource("one.sdf").getPath)
       .generateSignatures()
       .getMolecules
       .collect
-      
+
     val sdfByteArray = signatures(0)
       .getBytes(Charset.forName("UTF-8"))
     val sdfIS = new ByteArrayInputStream(sdfByteArray)
@@ -184,11 +179,10 @@ class SBVSPipelineTest extends FunSuite with BeforeAndAfterAll {
 
     val it = mols.iterator
     val mol = it.next
-    val sign : String = mol.getProperty("Signature")
-   
-    assert(sign=="(48,[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,37,39,41,43,45,47],[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,9.0,1.0,1.0,1.0,2.0,1.0,1.0,1.0,2.0,1.0,9.0,1.0,1.0,1.0,2.0,1.0,15.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,3.0,2.0,1.0,1.0,1.0,2.0,3.0,1.0,4.0])")
+    val sign: String = mol.getProperty("Signature")
+
+    assert(sign == "(48,[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,37,39,41,43,45,47],[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,9.0,1.0,1.0,1.0,2.0,1.0,1.0,1.0,2.0,1.0,9.0,1.0,1.0,1.0,2.0,1.0,15.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,3.0,2.0,1.0,1.0,1.0,2.0,3.0,1.0,4.0])")
   }
-  
 
   override def afterAll() {
     sc.stop()
