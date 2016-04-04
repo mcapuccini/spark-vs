@@ -138,9 +138,9 @@ private[vs] class ConformerPipeline(override val rdd: RDD[String])
     val molsWithCarryAndLabels = molsRDD.map { case (id, mol) => (id, 0.0, mol) }
     val (lps, mapping) = SGUtils.atoms2LP_UpdateSignMapCarryData(molsWithCarryAndLabels, null, 1, 3)
     //Give id for signature vector.
-    val idAndParseVector = lps.map { case (id, lp) => (id, lp.features.toSparse.toString()) }
+    val idAndSparseVector = lps.map { case (id, lp) => (id, lp.features.toSparse.toString()) }
     //Joining mol and vector based on id.
-    val joinedRDD = idAndSdfMols.join(idAndParseVector)
+    val joinedRDD = idAndSdfMols.join(idAndSparseVector)
     //We don't need Ids anymore. 
     val res = joinedRDD.map { case (id, (mol, sign)) => ConformerPipeline.writeSignature(mol,sign) }
     new ConformersWithSignsPipeline(res)

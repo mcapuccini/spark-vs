@@ -63,8 +63,7 @@ object SignatureExample extends Logging {
     val pw = new PrintWriter(params.signatureOutputFile)
     signatures.foreach(pw.println(_))
     pw.close
-    //.saveAsTextFile(params.signatureOutputFile)
-
+   
     sc.stop()
 
   }
