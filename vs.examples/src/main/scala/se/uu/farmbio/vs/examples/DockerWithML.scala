@@ -12,7 +12,7 @@ import java.io.PrintWriter
  * @author laeeq
  */
 
-object SignatureExample extends Logging {
+object DockerWithML extends Logging {
 
   case class Arglist(
     master: String = null,
@@ -21,8 +21,8 @@ object SignatureExample extends Logging {
 
   def main(args: Array[String]) {
     val defaultParams = Arglist()
-    val parser = new OptionParser[Arglist]("Signature-Example") {
-      head("SignatureExample: a pipeline to generate molecular signatures from conformers.")
+    val parser = new OptionParser[Arglist]("DockerWithML") {
+      head("DockerWithML makes use of Machine learning for efficient Docking")
       opt[String]("master")
         .text("spark master")
         .action((x, c) => c.copy(master = x))
@@ -58,8 +58,12 @@ object SignatureExample extends Logging {
       .readConformerFile(params.conformersFile)
       .generateSignatures()
       .getMolecules
-      .saveAsTextFile(params.signatureOutputFile)
-  
+      .collect()
+
+    val pw = new PrintWriter(params.signatureOutputFile)
+    signatures.foreach(pw.println(_))
+    pw.close
+   
     sc.stop()
 
   }
