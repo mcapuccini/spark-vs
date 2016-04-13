@@ -1,4 +1,6 @@
-package se.uu.farmbio.vs
+//if you want to test serial and spark version gives same result, copy only the test to SBVSPipelineTest.scala
+
+/*package se.uu.farmbio.vs
 
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
@@ -42,4 +44,4 @@ class DockingCheck extends FunSuite with BeforeAndAfterAll {
     sc.stop()
   }
 
-}
+}*/

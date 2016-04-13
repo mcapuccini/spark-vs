@@ -59,7 +59,7 @@ object SignatureExample extends Logging {
       .generateSignatures()
       .getMolecules
       .saveAsTextFile(params.signatureOutputFile)
-  
+
     sc.stop()
 
   }

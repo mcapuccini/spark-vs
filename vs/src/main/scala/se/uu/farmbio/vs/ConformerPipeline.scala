@@ -17,6 +17,7 @@ import java.nio.charset.Charset
 import org.openscience.cdk.tools.manipulator.ChemFileManipulator
 import java.io.ByteArrayInputStream
 import org.openscience.cdk.silent.ChemFile
+import org.apache.spark.mllib.linalg.SparseVector
 
 trait ConformerTransforms {
   def dock(receptorPath: String, method: Int, resolution: Int): SBVSPipeline with PoseTransforms
@@ -52,7 +53,7 @@ object ConformerPipeline {
     Source.fromInputStream(proc.getInputStream).mkString
 
   }
-  
+
   private def SdfStringToIAtomContainer = (sdfRecord: String) => {
     //get SDF as input stream
     val sdfByteArray = sdfRecord
@@ -62,7 +63,7 @@ object ConformerPipeline {
     val reader = new MDLV2000Reader(sdfIS)
     val chemFile = reader.read(new ChemFile)
     val mols = ChemFileManipulator.getAllAtomContainers(chemFile)
-       
+
     //mols is a Java list :-(
 
     val it = mols.iterator
@@ -71,17 +72,18 @@ object ConformerPipeline {
 
     while (it.hasNext()) {
       //for each molecule in the record compute the signature
-     
+
       val mol = it.next
-                 
+
       res = res ++ Seq(mol)
     }
 
     res //return the molecule
   }
-  
+
   private def writeSignature = (sdfRecord: String, signature: String) => {
     //get SDF as input stream
+
     val sdfByteArray = sdfRecord
       .getBytes(Charset.forName("UTF-8"))
     val sdfIS = new ByteArrayInputStream(sdfByteArray)
@@ -89,12 +91,13 @@ object ConformerPipeline {
     val reader = new MDLV2000Reader(sdfIS)
     val chemFile = reader.read(new ChemFile)
     val mols = ChemFileManipulator.getAllAtomContainers(chemFile)
+
     val strWriter = new StringWriter()
     val writer = new SDFWriter(strWriter)
-    
+
     //mols is a Java list :-(
     val it = mols.iterator
-  
+
     while (it.hasNext()) {
       val mol = it.next
       mol.setProperty("Signature", signature)
@@ -104,6 +107,7 @@ object ConformerPipeline {
     writer.close
     reader.close
     strWriter.toString() //return the molecule  
+
   }
 
 }
@@ -128,21 +132,17 @@ private[vs] class ConformerPipeline(override val rdd: RDD[String])
     val res = pipedRDD.flatMap(SBVSPipeline.splitSDFmolecules)
     new PosePipeline(res)
   }
-   
-   override def generateSignatures = {
-    //Give ids to SDFMols. Ids used later for joining signature vector with mol.
-    val idAndSdfMols = rdd.flatMap { mol => SBVSPipeline.splitSDFmolecules(mol) }.zipWithUniqueId().map { x => x.swap }
-    //Converts string to IAtomContainer which is required for SG library
-    val molsRDD = idAndSdfMols.flatMapValues { case (mol) => ConformerPipeline.SdfStringToIAtomContainer(mol) }
-    //Following steps perform Signature generation
-    val molsWithCarryAndLabels = molsRDD.map { case (id, mol) => (id, 0.0, mol) }
-    val (lps, mapping) = SGUtils.atoms2LP_UpdateSignMapCarryData(molsWithCarryAndLabels, null, 1, 3)
-    //Give id for signature vector.
-    val idAndSparseVector = lps.map { case (id, lp) => (id, lp.features.toSparse.toString()) }
-    //Joining mol and vector based on id.
-    val joinedRDD = idAndSdfMols.join(idAndSparseVector)
-    //We don't need Ids anymore. 
-    val res = joinedRDD.map { case (id, (mol, sign)) => ConformerPipeline.writeSignature(mol,sign) }
+
+  override def generateSignatures = {
+
+    val molsWithCarrySdfMolAndFakeLabels = rdd.flatMap {
+      case (sdfmol) =>
+        ConformerPipeline.SdfStringToIAtomContainer(sdfmol)
+          .map { case (mol) => (sdfmol, 0.0, mol) }          //using sdfmol because mol gives serialization error in atom2LP method
+    }
+    val (lps, mapping) = SGUtils.atoms2LP_UpdateSignMapCarryData(molsWithCarrySdfMolAndFakeLabels, null, 1, 3)
+    val molAndSparseVector = lps.map { case (mol, lp) => (mol, lp.features.toSparse.toString()) }
+    val res = molAndSparseVector.map { case (mol, sign) => ConformerPipeline.writeSignature(mol, sign) }
     new ConformersWithSignsPipeline(res)
   }
 
