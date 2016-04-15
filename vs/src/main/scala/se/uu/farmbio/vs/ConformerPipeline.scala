@@ -1,23 +1,26 @@
 package se.uu.farmbio.vs
 
+import se.uu.farmbio.sg.SGUtils
+
 import java.io.PrintWriter
 import java.io.StringWriter
-import org.openscience.cdk.io.SDFWriter
+import java.io.ByteArrayInputStream
 import java.nio.file.Paths
+import java.nio.charset.Charset
+
 import scala.collection.JavaConverters.seqAsJavaListConverter
 import scala.io.Source
+
 import org.apache.spark.SparkFiles
 import org.apache.spark.rdd.RDD
-import se.uu.farmbio.sg.SGUtils
-import org.openscience.cdk.interfaces.IAtomContainer
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.SparkContext._
+
+import org.openscience.cdk.io.SDFWriter
 import org.openscience.cdk.io.MDLV2000Reader
-import java.nio.charset.Charset
+import org.openscience.cdk.interfaces.IAtomContainer
 import org.openscience.cdk.tools.manipulator.ChemFileManipulator
-import java.io.ByteArrayInputStream
 import org.openscience.cdk.silent.ChemFile
-import org.apache.spark.mllib.linalg.SparseVector
 
 trait ConformerTransforms {
   def dock(receptorPath: String, method: Int, resolution: Int): SBVSPipeline with PoseTransforms
@@ -109,6 +112,28 @@ object ConformerPipeline {
     strWriter.toString() //return the molecule  
 
   }
+  
+   private def writeSignature2 = (mol: IAtomContainer, signature: String) => {
+    //get SDF as input stream
+
+
+    val strWriter = new StringWriter()
+    val writer = new SDFWriter(strWriter)
+
+    //mols is a Java list :-(
+   
+
+  
+     
+      mol.setProperty("Signature", signature)
+      mol.removeProperty("cdk:Remark")
+      writer.write(mol)
+    
+    writer.close
+   
+    strWriter.toString() //return the molecule  
+
+  }
 
 }
 
@@ -134,11 +159,12 @@ private[vs] class ConformerPipeline(override val rdd: RDD[String])
   }
 
   override def generateSignatures = {
-
-    val molsWithCarrySdfMolAndFakeLabels = rdd.flatMap {
+    
+    val splitRDD = rdd.flatMap(SBVSPipeline.splitSDFmolecules)
+    val molsWithCarrySdfMolAndFakeLabels = splitRDD.flatMap {
       case (sdfmol) =>
-        ConformerPipeline.SdfStringToIAtomContainer(sdfmol)
-          .map { case (mol) => (sdfmol, 0.0, mol) }          //using sdfmol because mol gives serialization error in atom2LP method
+        val IAtomMol = ConformerPipeline.SdfStringToIAtomContainer(sdfmol)
+          IAtomMol.map { case (mol) => (sdfmol, 0.0, mol) }          //using sdfmol because mol gives serialization error in atom2LP method
     }
     val (lps, mapping) = SGUtils.atoms2LP_UpdateSignMapCarryData(molsWithCarrySdfMolAndFakeLabels, null, 1, 3)
     val molAndSparseVector = lps.map { case (mol, lp) => (mol, lp.features.toSparse.toString()) }
