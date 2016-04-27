@@ -68,16 +68,11 @@ object ConformerPipeline {
     val mols = ChemFileManipulator.getAllAtomContainers(chemFile)
 
     //mols is a Java list :-(
-
     val it = mols.iterator
-
     var res = Seq[(IAtomContainer)]()
-
     while (it.hasNext()) {
       //for each molecule in the record compute the signature
-
       val mol = it.next
-
       res = res ++ Seq(mol)
     }
 
