@@ -57,7 +57,7 @@ object ConformerPipeline {
 
   }
 
-  private def SdfStringToIAtomContainer = (sdfRecord: String) => {
+  private def sdfStringToIAtomContainer(sdfRecord: String) = {
     //get SDF as input stream
     val sdfByteArray = sdfRecord
       .getBytes(Charset.forName("UTF-8"))
@@ -79,7 +79,7 @@ object ConformerPipeline {
     res //return the molecule
   }
 
-  private def writeSignature = (sdfRecord: String, signature: String) => {
+  private def writeSignature(sdfRecord: String, signature: String) = {
     //get SDF as input stream
 
     val sdfByteArray = sdfRecord
@@ -104,28 +104,6 @@ object ConformerPipeline {
     }
     writer.close
     reader.close
-    strWriter.toString() //return the molecule  
-
-  }
-  
-   private def writeSignature2 = (mol: IAtomContainer, signature: String) => {
-    //get SDF as input stream
-
-
-    val strWriter = new StringWriter()
-    val writer = new SDFWriter(strWriter)
-
-    //mols is a Java list :-(
-   
-
-  
-     
-      mol.setProperty("Signature", signature)
-      mol.removeProperty("cdk:Remark")
-      writer.write(mol)
-    
-    writer.close
-   
     strWriter.toString() //return the molecule  
 
   }
@@ -154,12 +132,12 @@ private[vs] class ConformerPipeline(override val rdd: RDD[String])
   }
 
   override def generateSignatures = {
-    
+
     val splitRDD = rdd.flatMap(SBVSPipeline.splitSDFmolecules)
     val molsWithCarrySdfMolAndFakeLabels = splitRDD.flatMap {
       case (sdfmol) =>
-        ConformerPipeline.SdfStringToIAtomContainer(sdfmol)
-        .map { case (mol) => (sdfmol, 0.0, mol) }          //using sdfmol because mol gives serialization error in atom2LP method
+        ConformerPipeline.sdfStringToIAtomContainer(sdfmol)
+          .map { case (mol) => (sdfmol, 0.0, mol) } //using sdfmol because mol gives serialization error in atom2LP method
     }
     val (lps, mapping) = SGUtils.atoms2LP_UpdateSignMapCarryData(molsWithCarrySdfMolAndFakeLabels, null, 1, 3)
     val molAndSparseVector = lps.map { case (mol, lp) => (mol, lp.features.toSparse.toString()) }
