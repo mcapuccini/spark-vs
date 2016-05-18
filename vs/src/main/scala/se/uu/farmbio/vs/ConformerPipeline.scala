@@ -58,10 +58,12 @@ object ConformerPipeline {
   }
 
   private def sdfStringToIAtomContainer(sdfRecord: String) = {
-    //get SDF as input stream
+    
+    //Get SDF as input stream
     val sdfByteArray = sdfRecord
       .getBytes(Charset.forName("UTF-8"))
     val sdfIS = new ByteArrayInputStream(sdfByteArray)
+    
     //Parse SDF
     val reader = new MDLV2000Reader(sdfIS)
     val chemFile = reader.read(new ChemFile)
@@ -80,22 +82,21 @@ object ConformerPipeline {
   }
 
   private def writeSignature(sdfRecord: String, signature: String) = {
-    //get SDF as input stream
-
+    
+    //Get SDF as input stream
     val sdfByteArray = sdfRecord
       .getBytes(Charset.forName("UTF-8"))
     val sdfIS = new ByteArrayInputStream(sdfByteArray)
+    
     //Parse SDF
     val reader = new MDLV2000Reader(sdfIS)
     val chemFile = reader.read(new ChemFile)
     val mols = ChemFileManipulator.getAllAtomContainers(chemFile)
 
+    //mols is a Java list :-(
     val strWriter = new StringWriter()
     val writer = new SDFWriter(strWriter)
-
-    //mols is a Java list :-(
     val it = mols.iterator
-
     while (it.hasNext()) {
       val mol = it.next
       mol.setProperty("Signature", signature)
@@ -126,18 +127,19 @@ private[vs] class ConformerPipeline(override val rdd: RDD[String])
           resolution.toString(),
           SparkFiles.get(receptorFileName)))
     }
-
     val res = pipedRDD.flatMap(SBVSPipeline.splitSDFmolecules)
     new PosePipeline(res)
   }
 
   override def generateSignatures = {
-
     val splitRDD = rdd.flatMap(SBVSPipeline.splitSDFmolecules)
     val molsWithCarrySdfMolAndFakeLabels = splitRDD.flatMap {
       case (sdfmol) =>
         ConformerPipeline.sdfStringToIAtomContainer(sdfmol)
-          .map { case (mol) => (sdfmol, 0.0, mol) } //using sdfmol because mol gives serialization error in atom2LP method
+          .map { case (mol) => 
+            //Using sdfmol because mol gives serialization error in atom2LP method
+            (sdfmol, 0.0, mol) 
+          } 
     }
     val (lps, mapping) = SGUtils.atoms2LP_UpdateSignMapCarryData(molsWithCarrySdfMolAndFakeLabels, null, 1, 3)
     val molAndSparseVector = lps.map { case (mol, lp) => (mol, lp.features.toSparse.toString()) }
