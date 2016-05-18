@@ -14,20 +14,20 @@
 	</properties>
 
 	<pluginRepositories>
-		<pluginRepository>
+		<pluginRepository> 
 			<id>scala-tools.org</id>
 			<name>Scala-tools Maven2 Repository</name>
 			<url>http://scala-tools.org/repo-releases</url>
 		</pluginRepository>
 	</pluginRepositories>
-
+	
 	<repositories>
 		<repository>
 			<id>pele.farmbio.uu.se</id>
 			<url>http://pele.farmbio.uu.se/artifactory/libs-snapshot</url>
 		</repository>
 	</repositories>
-
+	
 	<dependencies>
 		<dependency>
 			<groupId>org.scala-lang</groupId>
