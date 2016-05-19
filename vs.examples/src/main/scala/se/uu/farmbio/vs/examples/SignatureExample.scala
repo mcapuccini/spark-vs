@@ -3,10 +3,9 @@ package se.uu.farmbio.vs.examples
 import org.apache.spark.Logging
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
-import org.apache.spark.SparkContext._
+
 import scopt.OptionParser
 import se.uu.farmbio.vs.SBVSPipeline
-import java.io.PrintWriter
 
 /**
  * @author laeeq
@@ -21,7 +20,7 @@ object SignatureExample extends Logging {
 
   def main(args: Array[String]) {
     val defaultParams = Arglist()
-    val parser = new OptionParser[Arglist]("Signature-Example") {
+    val parser = new OptionParser[Arglist]("SignatureExample") {
       head("SignatureExample: a pipeline to generate molecular signatures from conformers.")
       opt[String]("master")
         .text("spark master")

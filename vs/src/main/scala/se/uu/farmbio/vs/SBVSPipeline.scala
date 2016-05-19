@@ -4,13 +4,12 @@ import org.apache.hadoop.io.LongWritable
 import org.apache.hadoop.io.Text
 import org.apache.spark.Logging
 import org.apache.spark.SparkContext
-import org.apache.spark.SparkContext._
 import org.apache.spark.rdd.RDD
 
-import openeye.oechem.OEErrorLevel
 import se.uu.farmbio.parsers.SDFInputFormat
 import se.uu.farmbio.parsers.SmilesInputFormat
 
+import openeye.oechem.OEErrorLevel
 
 private object SBVSPipeline {
 

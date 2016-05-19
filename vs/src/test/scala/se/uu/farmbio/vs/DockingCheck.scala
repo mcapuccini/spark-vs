@@ -8,12 +8,12 @@ import org.apache.spark.SparkContext
 import org.junit.runner.RunWith
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.FunSuite
+import org.scalatest.junit.JUnitRunner
+
 import openeye.oedocking.OEDockMethod
 import openeye.oedocking.OESearchResolution
-import openeye.oemolprop.OEFilterType
 import se.uu.farmbio.parsers.SDFRecordReader
 import se.uu.farmbio.parsers.SmilesRecordReader
-import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class DockingCheck extends FunSuite with BeforeAndAfterAll {

@@ -1,23 +1,22 @@
 package se.uu.farmbio.vs
 
-import java.io.PrintWriter
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
 import org.junit.runner.RunWith
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.FunSuite
+import org.scalatest.junit.JUnitRunner
+import org.openscience.cdk.tools.manipulator.ChemFileManipulator
+import org.openscience.cdk.io.MDLV2000Reader
+import org.openscience.cdk.silent.ChemFile
 import openeye.oedocking.OEDockMethod
 import openeye.oedocking.OESearchResolution
 import openeye.oemolprop.OEFilterType
 import se.uu.farmbio.parsers.SDFRecordReader
 import se.uu.farmbio.parsers.SmilesRecordReader
-import org.scalatest.junit.JUnitRunner
 import se.uu.farmbio.sg.SGUtils
 import java.io.ByteArrayInputStream
 import java.nio.charset.Charset
-import org.openscience.cdk.tools.manipulator.ChemFileManipulator
-import org.openscience.cdk.io.MDLV2000Reader
-import org.openscience.cdk.silent.ChemFile
 import scala.io.Source
 
 @RunWith(classOf[JUnitRunner])

@@ -58,10 +58,12 @@ object ConformerPipeline {
   }
 
   private def sdfStringToIAtomContainer(sdfRecord: String) = {
-    //get SDF as input stream
+    
+    //Get SDF as input stream
     val sdfByteArray = sdfRecord
       .getBytes(Charset.forName("UTF-8"))
     val sdfIS = new ByteArrayInputStream(sdfByteArray)
+    
     //Parse SDF
     val reader = new MDLV2000Reader(sdfIS)
     val chemFile = reader.read(new ChemFile)
@@ -80,22 +82,21 @@ object ConformerPipeline {
   }
 
   private def writeSignature(sdfRecord: String, signature: String) = {
-    //get SDF as input stream
-
+    
+    //Get SDF as input stream
     val sdfByteArray = sdfRecord
       .getBytes(Charset.forName("UTF-8"))
     val sdfIS = new ByteArrayInputStream(sdfByteArray)
+    
     //Parse SDF
     val reader = new MDLV2000Reader(sdfIS)
     val chemFile = reader.read(new ChemFile)
     val mols = ChemFileManipulator.getAllAtomContainers(chemFile)
-
+    
+    //mols is a Java list :-(
     val strWriter = new StringWriter()
     val writer = new SDFWriter(strWriter)
-
-    //mols is a Java list :-(
     val it = mols.iterator
-
     while (it.hasNext()) {
       val mol = it.next
       mol.setProperty("Signature", signature)
