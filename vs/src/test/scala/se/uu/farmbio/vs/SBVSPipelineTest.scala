@@ -137,42 +137,6 @@ class SBVSPipelineTest extends FunSuite with BeforeAndAfterAll {
 
   }
 
- test("generateSignatures should generate non-Null molecule signatures from conformers file") {
-
-    val parallelSign = new SBVSPipeline(sc)
-      .readConformerFile(getClass.getResource("conformers_with_failed_mol.sdf").getPath)
-      .generateSignatures()
-      .getMolecules
-      .collect()
-
-    assert(parallelSign.exists(_.trim.nonEmpty))
-  }
-  
-  test("generateSignatures should generate molecule signatures in expected format i.e. SparseVector") {
-
-    val signatures = new SBVSPipeline(sc)
-      .readConformerFile(getClass.getResource("one.sdf").getPath)
-      .generateSignatures()
-      .getMolecules
-      .collect
-       
-    val sdfByteArray = signatures(0)
-      .getBytes(Charset.forName("UTF-8"))
-    val sdfIS = new ByteArrayInputStream(sdfByteArray)
-    val reader = new MDLV2000Reader(sdfIS)
-    val chemFile = reader.read(new ChemFile)
-    val mols = ChemFileManipulator.getAllAtomContainers(chemFile)
-   
-    //mols is a Java list :-(
-    
-    val it = mols.iterator
-    val mol = it.next
-    val sign: String = mol.getProperty("Signature")
-
-    val sparseVector = Source.fromFile(getClass.getResource("SparseVector").getPath).getLines().next()
-        assert(sign == sparseVector)
-  }
-
   override def afterAll() {
     sc.stop()
   }
