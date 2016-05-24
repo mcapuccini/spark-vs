@@ -7,10 +7,6 @@ import org.apache.spark.SparkContext
 import scopt.OptionParser
 import se.uu.farmbio.vs.SBVSPipeline
 
-/**
- * @author laeeq
- */
-
 object SignatureExample extends Logging {
 
   case class Arglist(
