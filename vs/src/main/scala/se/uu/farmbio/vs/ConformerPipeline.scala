@@ -31,7 +31,7 @@ trait ConformerTransforms {
 object ConformerPipeline {
 
   //The Spark built-in pipe splits molecules line by line, we need a custom one
-  private[vs] def pipeString(str: String, command: List[String]) = {
+  private def pipeString(str: String, command: List[String]) = {
 
     //Start executable
     val pb = new ProcessBuilder(command.asJava)
@@ -58,12 +58,12 @@ object ConformerPipeline {
   }
 
   private def sdfStringToIAtomContainer(sdfRecord: String) = {
-    
+
     //Get SDF as input stream
     val sdfByteArray = sdfRecord
       .getBytes(Charset.forName("UTF-8"))
     val sdfIS = new ByteArrayInputStream(sdfByteArray)
-    
+
     //Parse SDF
     val reader = new MDLV2000Reader(sdfIS)
     val chemFile = reader.read(new ChemFile)
@@ -82,17 +82,17 @@ object ConformerPipeline {
   }
 
   private def writeSignature(sdfRecord: String, signature: String) = {
-    
+
     //Get SDF as input stream
     val sdfByteArray = sdfRecord
       .getBytes(Charset.forName("UTF-8"))
     val sdfIS = new ByteArrayInputStream(sdfByteArray)
-    
+
     //Parse SDF
     val reader = new MDLV2000Reader(sdfIS)
     val chemFile = reader.read(new ChemFile)
     val mols = ChemFileManipulator.getAllAtomContainers(chemFile)
-    
+
     //mols is a Java list :-(
     val strWriter = new StringWriter()
     val writer = new SDFWriter(strWriter)
@@ -133,16 +133,27 @@ private[vs] class ConformerPipeline(override val rdd: RDD[String])
   }
 
   override def generateSignatures = {
-
+    //Spliting molecules, so there is only one molecule per RDD record
     val splitRDD = rdd.flatMap(SBVSPipeline.splitSDFmolecules)
-    val molsWithCarrySdfMolAndFakeLabels = splitRDD.flatMap {
+    //Converting to IAtomContainer, fake labels are added
+    val molsWithFakeLabels = splitRDD.flatMap {
       case (sdfmol) =>
         ConformerPipeline.sdfStringToIAtomContainer(sdfmol)
-          .map { case (mol) => (sdfmol, 0.0, mol) } //using sdfmol because mol gives serialization error in atom2LP method
+          .map {
+            case (mol) =>
+              (sdfmol, 0.0, mol) // sdfmol is a carry, 0.0 is fake label and mol is the IAtomContainer
+          }
     }
-    val (lps, mapping) = SGUtils.atoms2LP_UpdateSignMapCarryData(molsWithCarrySdfMolAndFakeLabels, null, 1, 3)
-    val molAndSparseVector = lps.map { case (mol, lp) => (mol, lp.features.toSparse.toString()) }
-    val res = molAndSparseVector.map { case (mol, sign) => ConformerPipeline.writeSignature(mol, sign) }
+    //Convert to label point 
+    val (lps, _) = SGUtils.atoms2LP_UpdateSignMapCarryData(molsWithFakeLabels, null, 1, 3)
+    //Throw away the labels and only keep the features 
+    val molAndSparseVector = lps.map {          
+      case (mol, lp) => (mol, lp.features.toSparse.toString())
+    }
+    //Write Signature in the SDF String
+    val res = molAndSparseVector.map {
+      case (mol, sign) => ConformerPipeline.writeSignature(mol, sign)
+    }
     new ConformersWithSignsPipeline(res)
   }
 
