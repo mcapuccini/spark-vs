@@ -1,8 +1,7 @@
 package se.uu.farmbio.vs
 
-import org.apache.spark.rdd.RDD
 import org.apache.commons.lang.NotImplementedException
-import java.lang.Exception
+import org.apache.spark.rdd.RDD
 
 trait ConformersWithSignsTransforms {
   def dockWithML(path: String)

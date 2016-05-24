@@ -9,14 +9,18 @@ import org.scalatest.junit.JUnitRunner
 import org.openscience.cdk.tools.manipulator.ChemFileManipulator
 import org.openscience.cdk.io.MDLV2000Reader
 import org.openscience.cdk.silent.ChemFile
+
 import openeye.oedocking.OEDockMethod
 import openeye.oedocking.OESearchResolution
 import openeye.oemolprop.OEFilterType
+
 import se.uu.farmbio.parsers.SDFRecordReader
 import se.uu.farmbio.parsers.SmilesRecordReader
 import se.uu.farmbio.sg.SGUtils
+
 import java.io.ByteArrayInputStream
 import java.nio.charset.Charset
+
 import scala.io.Source
 
 @RunWith(classOf[JUnitRunner])
