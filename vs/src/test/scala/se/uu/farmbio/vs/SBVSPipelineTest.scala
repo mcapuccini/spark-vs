@@ -6,9 +6,6 @@ import org.junit.runner.RunWith
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
-import org.openscience.cdk.tools.manipulator.ChemFileManipulator
-import org.openscience.cdk.io.MDLV2000Reader
-import org.openscience.cdk.silent.ChemFile
 
 import openeye.oedocking.OEDockMethod
 import openeye.oedocking.OESearchResolution
