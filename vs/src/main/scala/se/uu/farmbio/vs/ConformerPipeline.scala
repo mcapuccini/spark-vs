@@ -133,18 +133,19 @@ private[vs] class ConformerPipeline(override val rdd: RDD[String])
   }
 
   override def generateSignatures = {
-    //Spliting molecules, so there is only one molecule per RDD record
+    //Split molecules, so there is only one molecule per RDD record
     val splitRDD = rdd.flatMap(SBVSPipeline.splitSDFmolecules)
-    //Converting to IAtomContainer, fake labels are added
+    //Convert to IAtomContainer, fake labels are added
     val molsWithFakeLabels = splitRDD.flatMap {
       case (sdfmol) =>
         ConformerPipeline.sdfStringToIAtomContainer(sdfmol)
           .map {
             case (mol) =>
+              //Make sg library happy
               (sdfmol, 0.0, mol) // sdfmol is a carry, 0.0 is fake label and mol is the IAtomContainer
           }
     }
-    //Convert to label point 
+    //Convert to labeled point 
     val (lps, _) = SGUtils.atoms2LP_UpdateSignMapCarryData(molsWithFakeLabels, null, 1, 3)
     //Throw away the labels and only keep the features 
     val molAndSparseVector = lps.map {          
