@@ -39,6 +39,5 @@ scala.compiler.useProjectSettings=true
 stopBuildOnError=false
 target=jvm-1.6
 unchecked=false
-useScopesCompiler=true
 verbose=false
 withVersionClasspathValidator=false
