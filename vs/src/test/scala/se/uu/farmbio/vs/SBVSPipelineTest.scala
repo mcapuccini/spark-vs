@@ -5,12 +5,20 @@ import org.apache.spark.SparkContext
 import org.junit.runner.RunWith
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.FunSuite
+import org.scalatest.junit.JUnitRunner
+
 import openeye.oedocking.OEDockMethod
 import openeye.oedocking.OESearchResolution
 import openeye.oemolprop.OEFilterType
+
 import se.uu.farmbio.parsers.SDFRecordReader
 import se.uu.farmbio.parsers.SmilesRecordReader
-import org.scalatest.junit.JUnitRunner
+import se.uu.farmbio.sg.SGUtils
+
+import java.io.ByteArrayInputStream
+import java.nio.charset.Charset
+
+import scala.io.Source
 
 @RunWith(classOf[JUnitRunner])
 class SBVSPipelineTest extends FunSuite with BeforeAndAfterAll {
@@ -115,14 +123,14 @@ class SBVSPipelineTest extends FunSuite with BeforeAndAfterAll {
 
     val res = new SBVSPipeline(sc)
       .readConformerFile(getClass.getResource("conformers_with_failed_mol.sdf").getPath)
-      .dock(getClass.getResource("receptor.oeb").getPath, 
+      .dock(getClass.getResource("receptor.oeb").getPath,
         OEDockMethod.Chemgauss4, OESearchResolution.Standard)
       .getMolecules
       .collect
 
-    val filteredPoses = TestUtils.readSDF(getClass.getResource("new_pose_file.sdf").getPath)
+    val dockedMolecules = TestUtils.readSDF(getClass.getResource("new_pose_file.sdf").getPath)
     assert(res.map(TestUtils.removeSDFheader).toSet
-      === filteredPoses.map(TestUtils.removeSDFheader).toSet)
+      === dockedMolecules.map(TestUtils.removeSDFheader).toSet)
 
   }
 
