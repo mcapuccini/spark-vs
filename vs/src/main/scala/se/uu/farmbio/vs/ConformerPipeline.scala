@@ -31,7 +31,7 @@ trait ConformerTransforms {
 object ConformerPipeline {
 
   //The Spark built-in pipe splits molecules line by line, we need a custom one
-  private def pipeString(str: String, command: List[String]) = {
+  private[vs] def pipeString(str: String, command: List[String]) = {
 
     //Start executable
     val pb = new ProcessBuilder(command.asJava)
