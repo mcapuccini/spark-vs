@@ -22,7 +22,7 @@ class DockingCheck extends FunSuite with BeforeAndAfterAll {
 
   //Init Spark
   private val conf = new SparkConf()
-    .setMaster("local")
+    .setMaster("local[*]")
     .setAppName("DockingCheck")
     .setExecutorEnv("OE_LICENSE", System.getenv("OE_LICENSE"))
   private val sc = new SparkContext(conf)
@@ -33,7 +33,7 @@ class DockingCheck extends FunSuite with BeforeAndAfterAll {
 
     //Parallel Execution
     val resPar = new SBVSPipeline(sc)
-      .readConformerFile(getClass.getResource("1000sdf.sdf").getPath)
+      .readConformerFile(getClass.getResource("1000mols.sdf").getPath)
       .dock(getClass.getResource("receptor.oeb").getPath,
         OEDockMethod.Chemgauss4, OESearchResolution.Standard)
       .getMolecules
@@ -41,7 +41,7 @@ class DockingCheck extends FunSuite with BeforeAndAfterAll {
 
     //Serial Execution  
     val dockingstdPath = System.getenv("DOCKING_CPP")
-    val conformerFile = TestUtils.readSDF(getClass.getResource("1000sdf.sdf").getPath)
+    val conformerFile = TestUtils.readSDF(getClass.getResource("1000mols.sdf").getPath)
     val receptorFileName = Paths.get(getClass.getResource("receptor.oeb").getPath).toString
     val dockingstdFileName = Paths.get(dockingstdPath).toString
     val resSer = conformerFile.map { sdf =>
