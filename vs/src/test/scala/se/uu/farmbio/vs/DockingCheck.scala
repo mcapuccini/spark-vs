@@ -33,7 +33,7 @@ class DockingCheck extends FunSuite with BeforeAndAfterAll {
 
     //Parallel Execution
     val resPar = new SBVSPipeline(sc)
-      .readConformerFile(getClass.getResource("conformers_with_failed_mol.sdf").getPath)
+      .readConformerFile(getClass.getResource("1000mols.sdf").getPath)
       .dock(getClass.getResource("receptor.oeb").getPath,
         OEDockMethod.Chemgauss4, OESearchResolution.Standard)
       .getMolecules
@@ -41,7 +41,7 @@ class DockingCheck extends FunSuite with BeforeAndAfterAll {
 
     //Serial Execution  
     val dockingstdPath = System.getenv("DOCKING_CPP_SERIAL")
-    val conformerFile = TestUtils.readSDF(getClass.getResource("conformers_with_failed_mol.sdf").getPath)
+    val conformerFile = TestUtils.readSDF(getClass.getResource("1000mols.sdf").getPath)
     val receptorFileName = Paths.get(getClass.getResource("receptor.oeb").getPath).toString
     val dockingstdFileName = Paths.get(dockingstdPath).toString
     val resSer = conformerFile.map { sdf =>
