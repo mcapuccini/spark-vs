@@ -35,5 +35,9 @@ object TestUtils {
   def splitSDF(sdf: String) = {
     sdf.trim.split("\\$\\$\\$\\$").map(_.trim+"\n$$$$").toList
   }
+  
+  def splitSDFString(sdf: String) = {
+    sdf.trim.split("\\$\\$\\$\\$").map(_.trim+"\n\n$$$$").toList
+  }
 
 }
