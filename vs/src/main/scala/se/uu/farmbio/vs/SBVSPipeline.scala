@@ -11,7 +11,7 @@ import se.uu.farmbio.parsers.SmilesInputFormat
 
 import openeye.oechem.OEErrorLevel
 
-private object SBVSPipeline {
+private[vs] object SBVSPipeline {
 
   def splitSDFmolecules(molecules: String) = {
     molecules.trim.split("\\$\\$\\$\\$").map(_.trim + "\n\n$$$$").toList

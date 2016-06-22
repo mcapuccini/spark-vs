@@ -14,7 +14,6 @@ import openeye.oedocking.OESearchResolution
 import se.uu.farmbio.parsers.SDFRecordReader
 import se.uu.farmbio.parsers.SmilesRecordReader
 import java.nio.file.Paths
-import sys.process._
 
 @RunWith(classOf[JUnitRunner])
 class DockingCheck extends FunSuite with BeforeAndAfterAll {
@@ -32,17 +31,16 @@ class DockingCheck extends FunSuite with BeforeAndAfterAll {
 
     //Parallel Execution
     val resPar = new SBVSPipeline(sc)
-      .readConformerFile(getClass.getResource("conformers_with_failed_mol.sdf").getPath)
+      .readConformerFile(getClass.getResource("1000mols.sdf").getPath)
       .dock(getClass.getResource("receptor.oeb").getPath,
         OEDockMethod.Chemgauss4, OESearchResolution.Standard)
       .getMolecules
       .collect
 
     //Serial Execution   
-    val conformerFile = TestUtils.readSDF(getClass.getResource("conformers_with_failed_mol.sdf").getPath)
+    val conformerFile = TestUtils.readSDF(getClass.getResource("1000mols.sdf").getPath)
     val receptorFileName = Paths.get(getClass.getResource("receptor.oeb").getPath).toString
     val dockingstdFileName = getClass.getResource("dockingstdSerial").getPath
-    "chmod +x " + dockingstdFileName !
     val conformerStr = conformerFile.mkString("\n")
     val resSer =
       ConformerPipeline.pipeString(conformerStr,
@@ -52,7 +50,7 @@ class DockingCheck extends FunSuite with BeforeAndAfterAll {
           receptorFileName))
 
     assert(resPar.map(TestUtils.removeSDFheader).toSet
-      === resSer.trim.split("\\$\\$\\$\\$").map(_.trim + "\n\n$$$$").toList.map(TestUtils.removeSDFheader).toSet)
+      === SBVSPipeline.splitSDFmolecules(resSer).map(TestUtils.removeSDFheader).toSet)
   }
 
   override def afterAll() {
