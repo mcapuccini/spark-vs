@@ -4,11 +4,11 @@ import scala.collection.mutable.ListBuffer
 import scala.io.Source
 
 object TestUtils {
-  
+
   def removeSDFheader(sdf: String) = {
     Source.fromString(sdf).getLines.drop(3).mkString("\n")
   }
-  
+
   def readSDF(path: String) = {
     val out = new ListBuffer[String]
     var mol = ""
@@ -23,21 +23,17 @@ object TestUtils {
     }
     out
   }
-  
+
   def readSmiles(path: String) = {
-    Source.fromFile(path).getLines.map(_+"\n")
+    Source.fromFile(path).getLines.map(_ + "\n")
   }
-  
+
   def splitSmiles(smiles: String) = {
-    Source.fromString(smiles).getLines.map(_+"\n")
+    Source.fromString(smiles).getLines.map(_ + "\n")
   }
-  
+
   def splitSDF(sdf: String) = {
-    sdf.trim.split("\\$\\$\\$\\$").map(_.trim+"\n$$$$").toList
-  }
-  
-  def splitSDFString(sdf: String) = {
-    sdf.trim.split("\\$\\$\\$\\$").map(_.trim+"\n\n$$$$").toList
+    sdf.trim.split("\\$\\$\\$\\$").map(_.trim + "\n$$$$").toList
   }
 
 }

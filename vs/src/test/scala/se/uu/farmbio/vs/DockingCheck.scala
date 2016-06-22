@@ -14,6 +14,7 @@ import openeye.oedocking.OESearchResolution
 import se.uu.farmbio.parsers.SDFRecordReader
 import se.uu.farmbio.parsers.SmilesRecordReader
 import java.nio.file.Paths
+import sys.process._
 
 @RunWith(classOf[JUnitRunner])
 class DockingCheck extends FunSuite with BeforeAndAfterAll {
@@ -37,24 +38,21 @@ class DockingCheck extends FunSuite with BeforeAndAfterAll {
       .getMolecules
       .collect
 
-    
     //Serial Execution   
-    //val dockingstdPath = System.getenv("DOCKING_CPP_SERIAL")
     val conformerFile = TestUtils.readSDF(getClass.getResource("conformers_with_failed_mol.sdf").getPath)
     val receptorFileName = Paths.get(getClass.getResource("receptor.oeb").getPath).toString
-    val dockingstdFileName = Paths.get(getClass.getResource("dockingstdSerial").getPath).toString
+    val dockingstdFileName = getClass.getResource("dockingstdSerial").getPath
+    "chmod +x " + dockingstdFileName !
     val conformerStr = conformerFile.mkString("\n")
-    val resSer = 
+    val resSer =
       ConformerPipeline.pipeString(conformerStr,
         List(dockingstdFileName,
           OEDockMethod.Chemgauss4.toString(),
           OESearchResolution.Standard.toString(),
           receptorFileName))
-   
-  
-    assert(resPar.map(TestUtils.removeSDFheader).toSet
-      === TestUtils.splitSDFString(resSer).map(TestUtils.removeSDFheader).toSet)
 
+    assert(resPar.map(TestUtils.removeSDFheader).toSet
+      === resSer.trim.split("\\$\\$\\$\\$").map(_.trim + "\n\n$$$$").toList.map(TestUtils.removeSDFheader).toSet)
   }
 
   override def afterAll() {
