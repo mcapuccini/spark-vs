@@ -41,6 +41,9 @@ object Docker extends Logging {
       opt[String]("master")
         .text("spark master")
         .action((x, c) => c.copy(master = x))
+      opt[String]("hdfsPath")
+        .text("path to save all output poses to hdfs")
+        .action((x, c) => c.copy(hdfsPath = x))
       arg[String]("<conformers-file>")
         .required()
         .text("path to input SDF conformers file")
@@ -53,10 +56,7 @@ object Docker extends Logging {
         .required()
         .text("path to top output poses")
         .action((x, c) => c.copy(topPosesPath = x))
-      arg[String]("<hdfs-path>")
-        .required()
-        .text("path to save all output poses to hdfs")
-        .action((x, c) => c.copy(hdfsPath = x))
+
     }
 
     parser.parse(args, defaultParams).map { params =>
@@ -94,11 +94,14 @@ object Docker extends Logging {
     if (params.collapse > 0) {
       poses = poses.collapse(params.collapse)
     }
-    val res = poses
-      .sortByScore
-      .saveAsTextFile(params.hdfsPath)
+
+    val sortedPoses = poses.sortByScore
+    if (params.hdfsPath != null)
+      sortedPoses.saveAsTextFile(params.hdfsPath)
+    val res = sortedPoses
       .getMolecules
       .take(10) //take first 10
+
     val t1 = System.currentTimeMillis
     val elapsed = t1 - t0
     logInfo(s"pipeline took: $elapsed millisec.")
