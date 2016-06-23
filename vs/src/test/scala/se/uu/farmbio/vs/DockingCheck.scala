@@ -9,11 +9,11 @@ import org.junit.runner.RunWith
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
+
 import openeye.oedocking.OEDockMethod
 import openeye.oedocking.OESearchResolution
 import se.uu.farmbio.parsers.SDFRecordReader
 import se.uu.farmbio.parsers.SmilesRecordReader
-import java.nio.file.Paths
 
 @RunWith(classOf[JUnitRunner])
 class DockingCheck extends FunSuite with BeforeAndAfterAll {
@@ -39,7 +39,7 @@ class DockingCheck extends FunSuite with BeforeAndAfterAll {
 
     //Serial Execution   
     val conformerFile = TestUtils.readSDF(getClass.getResource("chembl_1000_samples.sdf").getPath)
-    val receptorFileName = Paths.get(getClass.getResource("receptor.oeb").getPath).toString
+    val receptorFileName = getClass.getResource("receptor.oeb").getPath
     val dockingstdFileName = getClass.getResource("dockingstdSerial").getPath
     val conformerStr = conformerFile.mkString("\n")
     val resSer =
