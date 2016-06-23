@@ -19,7 +19,8 @@ object Docker extends Logging {
     topPosesPath: String = null,
     size: String = "30",
     sampleSize: Double = 1.0,
-    collapse: Int = 0)
+    collapse: Int = 0,
+    posesCheckpointPath: String = null)
 
   def main(args: Array[String]) {
 
@@ -40,6 +41,9 @@ object Docker extends Logging {
       opt[String]("master")
         .text("spark master")
         .action((x, c) => c.copy(master = x))
+      opt[String]("posesCheckpointPath")
+        .text("path to checkpoint all of the output poses before taking the top 10 (default: null)")
+        .action((x, c) => c.copy(posesCheckpointPath = x))
       arg[String]("<conformers-file>")
         .required()
         .text("path to input SDF conformers file")
@@ -52,6 +56,7 @@ object Docker extends Logging {
         .required()
         .text("path to top output poses")
         .action((x, c) => c.copy(topPosesPath = x))
+
     }
 
     parser.parse(args, defaultParams).map { params =>
@@ -89,11 +94,16 @@ object Docker extends Logging {
     if (params.collapse > 0) {
       poses = poses.collapse(params.collapse)
     }
-    val res = poses
-      .sortByScore
+
+    val sortedPoses = poses.sortByScore
+    val t1 = System.currentTimeMillis
+    if (params.posesCheckpointPath != null) {
+      sortedPoses.saveAsTextFile(params.posesCheckpointPath)
+    }
+    val res = sortedPoses
       .getMolecules
       .take(10) //take first 10
-    val t1 = System.currentTimeMillis
+
     val elapsed = t1 - t0
     logInfo(s"pipeline took: $elapsed millisec.")
 
