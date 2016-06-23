@@ -20,7 +20,7 @@ object Docker extends Logging {
     size: String = "30",
     sampleSize: Double = 1.0,
     collapse: Int = 0,
-    hdfsPath: String = null)
+    posesCheckpointPath: String = null)
 
   def main(args: Array[String]) {
 
@@ -41,9 +41,9 @@ object Docker extends Logging {
       opt[String]("master")
         .text("spark master")
         .action((x, c) => c.copy(master = x))
-      opt[String]("hdfsPath")
-        .text("path to save all output poses to hdfs")
-        .action((x, c) => c.copy(hdfsPath = x))
+      opt[String]("posesCheckpointPath")
+        .text("path to checkpoint all of the output poses before taking the top 10 (default: null)")
+        .action((x, c) => c.copy(posesCheckpointPath = x))
       arg[String]("<conformers-file>")
         .required()
         .text("path to input SDF conformers file")
@@ -96,8 +96,9 @@ object Docker extends Logging {
     }
 
     val sortedPoses = poses.sortByScore
-    if (params.hdfsPath != null)
-      sortedPoses.saveAsTextFile(params.hdfsPath)
+    if (params.posesCheckpointPath != null){
+      sortedPoses.saveAsTextFile(params.posesCheckpointPath)
+    }
     val res = sortedPoses
       .getMolecules
       .take(10) //take first 10
