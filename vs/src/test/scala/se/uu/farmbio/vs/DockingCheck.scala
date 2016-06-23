@@ -40,6 +40,7 @@ class DockingCheck extends FunSuite with BeforeAndAfterAll {
     //Serial Execution   
     val conformerFile = TestUtils.readSDF(getClass.getResource("chembl_1000_samples.sdf").getPath)
     val receptorFileName = getClass.getResource("receptor.oeb").getPath
+    //Source for dockingstdSerial can be found in the docking-cpp folder
     val dockingstdFileName = getClass.getResource("dockingstdSerial").getPath
     val conformerStr = conformerFile.mkString("\n")
     val resSer =
