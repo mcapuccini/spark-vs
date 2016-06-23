@@ -96,14 +96,14 @@ object Docker extends Logging {
     }
 
     val sortedPoses = poses.sortByScore
-    if (params.posesCheckpointPath != null){
+    val t1 = System.currentTimeMillis
+    if (params.posesCheckpointPath != null) {
       sortedPoses.saveAsTextFile(params.posesCheckpointPath)
     }
     val res = sortedPoses
       .getMolecules
       .take(10) //take first 10
 
-    val t1 = System.currentTimeMillis
     val elapsed = t1 - t0
     logInfo(s"pipeline took: $elapsed millisec.")
 
