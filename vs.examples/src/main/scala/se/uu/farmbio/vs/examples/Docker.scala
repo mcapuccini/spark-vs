@@ -19,7 +19,8 @@ object Docker extends Logging {
     topPosesPath: String = null,
     size: String = "30",
     sampleSize: Double = 1.0,
-    collapse: Int = 0)
+    collapse: Int = 0,
+    hdfsPath: String = null)
 
   def main(args: Array[String]) {
 
@@ -52,6 +53,10 @@ object Docker extends Logging {
         .required()
         .text("path to top output poses")
         .action((x, c) => c.copy(topPosesPath = x))
+      arg[String]("<hdfs-path>")
+        .required()
+        .text("path to save all output poses to hdfs")
+        .action((x, c) => c.copy(hdfsPath = x))
     }
 
     parser.parse(args, defaultParams).map { params =>
@@ -91,6 +96,7 @@ object Docker extends Logging {
     }
     val res = poses
       .sortByScore
+      .saveAsTextFile(params.hdfsPath)
       .getMolecules
       .take(10) //take first 10
     val t1 = System.currentTimeMillis
