@@ -19,7 +19,8 @@ object Docker extends Logging {
     sampleSize: Double = 1.0,
     collapse: Int = 0,
     posesCheckpointPath: String = null,
-    oeLicensePath: String = null)
+    oeLicensePath: String = null,
+    dockingCppPath: String = null)
 
   def main(args: Array[String]) {
 
@@ -44,9 +45,11 @@ object Docker extends Logging {
         .text("path to checkpoint all of the output poses before taking the top 10 (default: null)")
         .action((x, c) => c.copy(posesCheckpointPath = x))
       opt[String]("oeLicensePath")
-        .required()
         .text("path to OEChem License")
         .action((x, c) => c.copy(oeLicensePath = x))
+      opt[String]("dockingCppPath")
+        .text("path to CPP docking executable")
+        .action((x, c) => c.copy(dockingCppPath = x))
       arg[String]("<conformers-file>")
         .required()
         .text("path to input SDF conformers file")
@@ -76,6 +79,7 @@ object Docker extends Logging {
     val conf = new SparkConf()
       .setAppName("Docker")
       .setExecutorEnv("OE_LICENSE", params.oeLicensePath)
+      .setExecutorEnv("DOCKING_CPP", params.dockingCppPath)
     if (params.master != null) {
       conf.setMaster(params.master)
     }
