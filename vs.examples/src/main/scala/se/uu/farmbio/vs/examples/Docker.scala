@@ -45,7 +45,7 @@ object Docker extends Logging {
         .action((x, c) => c.copy(posesCheckpointPath = x))
       opt[String]("oeLicensePath")
         .required()
-        .text("License Path for OEChem")
+        .text("path to OEChem License")
         .action((x, c) => c.copy(oeLicensePath = x))
       arg[String]("<conformers-file>")
         .required()
