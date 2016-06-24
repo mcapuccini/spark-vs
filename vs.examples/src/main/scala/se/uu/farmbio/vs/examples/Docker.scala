@@ -1,7 +1,5 @@
 package se.uu.farmbio.vs.examples
 
-import java.io.PrintWriter
-
 import org.apache.spark.Logging
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
@@ -103,13 +101,9 @@ object Docker extends Logging {
     val res = sortedPoses
       .getMolecules
       .take(10) //take first 10
-
+    sc.parallelize(res, 1).saveAsTextFile(params.topPosesPath)
     val elapsed = t1 - t0
     logInfo(s"pipeline took: $elapsed millisec.")
-
-    val pw = new PrintWriter(params.topPosesPath)
-    res.foreach(pw.println(_))
-    pw.close
 
   }
 
