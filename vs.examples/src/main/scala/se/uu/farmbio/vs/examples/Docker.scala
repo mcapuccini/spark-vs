@@ -19,7 +19,7 @@ object Docker extends Logging {
     sampleSize: Double = 1.0,
     collapse: Int = 0,
     posesCheckpointPath: String = null,
-    oeLicensePath: String= null)
+    oeLicensePath: String = null)
 
   def main(args: Array[String]) {
 
@@ -59,7 +59,7 @@ object Docker extends Logging {
         .required()
         .text("path to top output poses")
         .action((x, c) => c.copy(topPosesPath = x))
-      
+
     }
 
     parser.parse(args, defaultParams).map { params =>
