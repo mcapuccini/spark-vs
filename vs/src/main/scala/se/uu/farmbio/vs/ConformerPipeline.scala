@@ -115,14 +115,12 @@ private[vs] class ConformerPipeline(override val rdd: RDD[String])
     extends SBVSPipeline(rdd) with ConformerTransforms {
 
   override def dock(receptorPath: String, method: Int, resolution: Int) = {
-    val dockingstdPath = System.getenv("DOCKING_CPP")
-    sc.addFile(dockingstdPath)
+
     sc.addFile(receptorPath)
     val receptorFileName = Paths.get(receptorPath).getFileName.toString
-    val dockingstdFileName = Paths.get(dockingstdPath).getFileName.toString
     val pipedRDD = rdd.map { sdf =>
       ConformerPipeline.pipeString(sdf,
-        List(SparkFiles.get(dockingstdFileName),
+        List("dockingstd",
           method.toString(),
           resolution.toString(),
           SparkFiles.get(receptorFileName)))
@@ -148,7 +146,7 @@ private[vs] class ConformerPipeline(override val rdd: RDD[String])
     //Convert to labeled point 
     val (lps, _) = SGUtils.atoms2LP_UpdateSignMapCarryData(molsWithFakeLabels, null, 1, 3)
     //Throw away the labels and only keep the features 
-    val molAndSparseVector = lps.map {          
+    val molAndSparseVector = lps.map {
       case (mol, lp) => (mol, lp.features.toSparse.toString())
     }
     //Write Signature in the SDF String

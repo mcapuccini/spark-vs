@@ -19,8 +19,7 @@ object Docker extends Logging {
     sampleSize: Double = 1.0,
     collapse: Int = 0,
     posesCheckpointPath: String = null,
-    oeLicensePath: String = null
-    )
+    oeLicensePath: String = null)
 
   def main(args: Array[String]) {
 
@@ -76,7 +75,7 @@ object Docker extends Logging {
     val conf = new SparkConf()
       .setAppName("Docker")
       .setExecutorEnv("OE_LICENSE", params.oeLicensePath)
-    
+
     if (params.master != null) {
       conf.setMaster(params.master)
     }
