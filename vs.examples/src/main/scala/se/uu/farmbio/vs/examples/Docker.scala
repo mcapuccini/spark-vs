@@ -74,8 +74,9 @@ object Docker extends Logging {
     //Init Spark
     val conf = new SparkConf()
       .setAppName("Docker")
-      .setExecutorEnv("OE_LICENSE", params.oeLicensePath)
-
+    if (params.oeLicensePath != null) {
+      conf.setExecutorEnv("OE_LICENSE", params.oeLicensePath)
+    }
     if (params.master != null) {
       conf.setMaster(params.master)
     }
