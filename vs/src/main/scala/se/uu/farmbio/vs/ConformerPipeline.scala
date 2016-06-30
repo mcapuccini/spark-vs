@@ -119,10 +119,10 @@ private[vs] class ConformerPipeline(override val rdd: RDD[String])
 
     //Use local CPP if DOCKING_CPP is set
     val dockingstdPath = if (System.getenv("DOCKING_CPP") != null) {
-      logInfo("using local cpp: " + System.getenv("DOCKING_CPP"))
+      logInfo("using local dockingstd: " + System.getenv("DOCKING_CPP"))
       System.getenv("DOCKING_CPP")
     } else {
-      logInfo("using remote cpp: " + DOCKING_CPP_URL)
+      logInfo("using remote dockingstd: " + DOCKING_CPP_URL)
       DOCKING_CPP_URL
     }
 
