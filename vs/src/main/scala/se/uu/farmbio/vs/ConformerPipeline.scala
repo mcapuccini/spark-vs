@@ -23,7 +23,7 @@ import org.openscience.cdk.tools.manipulator.ChemFileManipulator
 import org.openscience.cdk.silent.ChemFile
 
 trait ConformerTransforms {
-  val DOCKING_CPP_URL = ""
+  val DOCKING_CPP_URL = "http://pele.farmbio.uu.se/spark-vs/dockingstd"
   def dock(receptorPath: String, method: Int, resolution: Int): SBVSPipeline with PoseTransforms
   def repartition: SBVSPipeline with ConformerTransforms
   def generateSignatures(): SBVSPipeline with ConformersWithSignsTransforms
