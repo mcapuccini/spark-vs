@@ -23,6 +23,7 @@ import org.openscience.cdk.tools.manipulator.ChemFileManipulator
 import org.openscience.cdk.silent.ChemFile
 
 trait ConformerTransforms {
+  val DOCKING_CPP_URL = "http://pele.farmbio.uu.se/spark-vs/dockingstd"
   def dock(receptorPath: String, method: Int, resolution: Int): SBVSPipeline with PoseTransforms
   def repartition: SBVSPipeline with ConformerTransforms
   def generateSignatures(): SBVSPipeline with ConformersWithSignsTransforms
@@ -116,11 +117,22 @@ private[vs] class ConformerPipeline(override val rdd: RDD[String])
 
   override def dock(receptorPath: String, method: Int, resolution: Int) = {
 
+    //Use local CPP if DOCKING_CPP is set
+    val dockingstdPath = if (System.getenv("DOCKING_CPP") != null) {
+      logInfo("using local dockingstd: " + System.getenv("DOCKING_CPP"))
+      System.getenv("DOCKING_CPP")
+    } else {
+      logInfo("using remote dockingstd: " + DOCKING_CPP_URL)
+      DOCKING_CPP_URL
+    }
+
+    sc.addFile(dockingstdPath)
     sc.addFile(receptorPath)
     val receptorFileName = Paths.get(receptorPath).getFileName.toString
+    val dockingstdFileName = Paths.get(dockingstdPath).getFileName.toString
     val pipedRDD = rdd.map { sdf =>
       ConformerPipeline.pipeString(sdf,
-        List("dockingstd",
+        List(SparkFiles.get(dockingstdFileName),
           method.toString(),
           resolution.toString(),
           SparkFiles.get(receptorFileName)))
