@@ -9,12 +9,33 @@ import org.apache.spark.rdd.RDD
 import se.uu.farmbio.parsers.SDFInputFormat
 import se.uu.farmbio.parsers.SmilesInputFormat
 
+import org.openscience.cdk.io.MDLV2000Reader
+import org.openscience.cdk.tools.manipulator.ChemFileManipulator
+import org.openscience.cdk.silent.ChemFile
+
+import java.io.ByteArrayInputStream
+import java.nio.charset.Charset
+
 import openeye.oechem.OEErrorLevel
 
 private[vs] object SBVSPipeline {
 
   def splitSDFmolecules(molecules: String) = {
     molecules.trim.split("\\$\\$\\$\\$").map(_.trim + "\n\n$$$$").toList
+  }
+  
+  //The function takes sdfRecord and returns a List of IAtomContainer
+  def CDKInit(sdfRecord: String) = {
+    val sdfByteArray = sdfRecord
+      .getBytes(Charset.forName("UTF-8"))
+    val sdfIS = new ByteArrayInputStream(sdfByteArray)
+    //Parse SDF
+    val reader = new MDLV2000Reader(sdfIS)
+    val chemFile = reader.read(new ChemFile)
+    val mols = ChemFileManipulator.getAllAtomContainers(chemFile)
+    reader.close
+    //mols is a Java list :-(
+    mols.iterator
   }
 
 }

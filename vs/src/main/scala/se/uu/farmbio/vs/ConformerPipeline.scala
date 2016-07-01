@@ -4,9 +4,7 @@ import se.uu.farmbio.sg.SGUtils
 
 import java.io.PrintWriter
 import java.io.StringWriter
-import java.io.ByteArrayInputStream
 import java.nio.file.Paths
-import java.nio.charset.Charset
 
 import scala.collection.JavaConverters.seqAsJavaListConverter
 import scala.io.Source
@@ -17,10 +15,7 @@ import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.SparkContext._
 
 import org.openscience.cdk.io.SDFWriter
-import org.openscience.cdk.io.MDLV2000Reader
 import org.openscience.cdk.interfaces.IAtomContainer
-import org.openscience.cdk.tools.manipulator.ChemFileManipulator
-import org.openscience.cdk.silent.ChemFile
 
 trait ConformerTransforms {
   val DOCKING_CPP_URL = "http://pele.farmbio.uu.se/spark-vs/dockingstd"
@@ -60,18 +55,7 @@ object ConformerPipeline {
 
   private def sdfStringToIAtomContainer(sdfRecord: String) = {
 
-    //Get SDF as input stream
-    val sdfByteArray = sdfRecord
-      .getBytes(Charset.forName("UTF-8"))
-    val sdfIS = new ByteArrayInputStream(sdfByteArray)
-
-    //Parse SDF
-    val reader = new MDLV2000Reader(sdfIS)
-    val chemFile = reader.read(new ChemFile)
-    val mols = ChemFileManipulator.getAllAtomContainers(chemFile)
-
-    //mols is a Java list :-(
-    val it = mols.iterator
+    val it = SBVSPipeline.CDKInit(sdfRecord)
     var res = Seq[(IAtomContainer)]()
     while (it.hasNext()) {
       //for each molecule in the record compute the signature
@@ -83,21 +67,9 @@ object ConformerPipeline {
   }
 
   private def writeSignature(sdfRecord: String, signature: String) = {
-
-    //Get SDF as input stream
-    val sdfByteArray = sdfRecord
-      .getBytes(Charset.forName("UTF-8"))
-    val sdfIS = new ByteArrayInputStream(sdfByteArray)
-
-    //Parse SDF
-    val reader = new MDLV2000Reader(sdfIS)
-    val chemFile = reader.read(new ChemFile)
-    val mols = ChemFileManipulator.getAllAtomContainers(chemFile)
-
-    //mols is a Java list :-(
+    val it = SBVSPipeline.CDKInit(sdfRecord)
     val strWriter = new StringWriter()
     val writer = new SDFWriter(strWriter)
-    val it = mols.iterator
     while (it.hasNext()) {
       val mol = it.next
       mol.setProperty("Signature", signature)
@@ -105,9 +77,7 @@ object ConformerPipeline {
       writer.write(mol)
     }
     writer.close
-    reader.close
     strWriter.toString() //return the molecule  
-
   }
 
 }
