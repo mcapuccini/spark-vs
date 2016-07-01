@@ -10,6 +10,6 @@ trait ConformersWithSignsTransforms {
 private[vs] class ConformersWithSignsPipeline(override val rdd: RDD[String])
     extends SBVSPipeline(rdd) with ConformersWithSignsTransforms {
   def dockWithML(path: String) = {
-   throw new NotImplementedException("Please don't call me again. I am not ready yet")
+    throw new NotImplementedException("Please don't call me again. I am not ready yet")
   }
 }

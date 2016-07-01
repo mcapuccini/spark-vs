@@ -109,7 +109,7 @@ private[vs] class ConformerPipeline(override val rdd: RDD[String])
     }
 
     val res = pipedRDD.flatMap(SBVSPipeline.splitSDFmolecules)
-    new PosePipeline(res)
+    new PosePipeline(res, method)
   }
 
   override def generateSignatures = {
