@@ -3,7 +3,6 @@ package se.uu.farmbio.vs
 import scala.io.Source
 import org.apache.spark.rdd.RDD
 import openeye.oedocking.OEDockMethod
-import openeye.oedocking.OEDock
 
 trait PoseTransforms {
 
@@ -23,25 +22,29 @@ private[vs] class PosePipeline(override val rdd: RDD[String], val scoreMethod: I
   }
 
   private def parseScore(method: Int) = (pose: String) => {
-
-    val methodString: String = method match {
-      case OEDockMethod.Chemgauss4 => "Chemgauss4"
-      case OEDockMethod.Chemgauss3 => "Chemgauss3"
-      case OEDockMethod.Shapegauss => "Shapegauss"
-      case OEDockMethod.Chemscore  => "Chemscore"
-      case OEDockMethod.Hybrid     => "Hybrid"
-      case OEDockMethod.Hybrid1    => "Hybrid1"
-      case OEDockMethod.Hybrid2    => "Hybrid2"
-      case OEDockMethod.PLP        => "PLP"
+    var result: Double = 0.0
+    try {
+      val methodString: String = method match {
+        case OEDockMethod.Chemgauss4 => "Chemgauss4"
+        case OEDockMethod.Chemgauss3 => "Chemgauss3"
+        case OEDockMethod.Shapegauss => "Shapegauss"
+        case OEDockMethod.Chemscore  => "Chemscore"
+        case OEDockMethod.Hybrid     => "Hybrid"
+        case OEDockMethod.Hybrid1    => "Hybrid1"
+        case OEDockMethod.Hybrid2    => "Hybrid2"
+        case OEDockMethod.PLP        => "PLP"
+      }
+      var res: String = null
+      val it = SBVSPipeline.CDKInit(pose)
+      while (it.hasNext()) {
+        val mol = it.next
+        res = mol.getProperty(methodString)
+      }
+      result = res.toDouble
+    } catch {
+      case nfe: NumberFormatException => println(pose)
     }
-
-    val it = SBVSPipeline.CDKInit(pose)
-    var res: String = null
-    while (it.hasNext()) {
-      val mol = it.next
-      res = mol.getProperty(methodString)
-    }
-    res.toDouble
+    result
   }
 
   private def collapsePoses(bestN: Int, parseScore: String => Double) = (record: (String, Iterable[String])) => {
