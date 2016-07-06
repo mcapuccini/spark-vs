@@ -3,6 +3,7 @@ package se.uu.farmbio.vs
 import scala.io.Source
 import org.apache.spark.rdd.RDD
 import openeye.oedocking.OEDockMethod
+import org.apache.log4j.Logger
 
 trait PoseTransforms {
 
@@ -10,6 +11,10 @@ trait PoseTransforms {
   def sortByScore: SBVSPipeline with PoseTransforms
   def repartition: SBVSPipeline with PoseTransforms
 
+}
+
+object MyLogger extends Serializable {
+  @transient lazy val log = Logger.getLogger(getClass.getName)
 }
 
 private[vs] class PosePipeline(override val rdd: RDD[String], val scoreMethod: Int) extends SBVSPipeline(rdd)
@@ -22,7 +27,9 @@ private[vs] class PosePipeline(override val rdd: RDD[String], val scoreMethod: I
   }
 
   private def parseScore(method: Int) = (pose: String) => {
-    var result: Double = 0.0
+    var result: Double = Double.MinValue
+    //Sometimes OEChem produce molecules with empty score or malformed molecules
+    //We use try catch block for those exceptions
     try {
       val methodString: String = method match {
         case OEDockMethod.Chemgauss4 => "Chemgauss4"
@@ -42,7 +49,8 @@ private[vs] class PosePipeline(override val rdd: RDD[String], val scoreMethod: I
       }
       result = res.toDouble
     } catch {
-      case nfe: NumberFormatException => println(pose)
+      case excep: Exception => MyLogger.log.warn("\nIt was not possible to parse the score" +
+        " of the following molecule due to \n" + excep + ", setting the score to Double.MinValue\n" + pose)
     }
     result
   }
