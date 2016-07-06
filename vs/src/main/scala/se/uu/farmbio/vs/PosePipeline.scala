@@ -13,7 +13,7 @@ trait PoseTransforms {
 
 }
 
-object MyLogger extends Serializable {
+object MyLogger {
   @transient lazy val log = Logger.getLogger(getClass.getName)
 }
 
