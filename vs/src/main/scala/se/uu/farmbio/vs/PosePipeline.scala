@@ -13,7 +13,7 @@ trait PoseTransforms {
 
 }
 
-object MyLogger {
+private[vs] object PosePipelineLogger {
   @transient lazy val log = Logger.getLogger(getClass.getName)
 }
 
@@ -49,7 +49,7 @@ private[vs] class PosePipeline(override val rdd: RDD[String], val scoreMethod: I
       }
       result = res.toDouble
     } catch {
-      case excep: Exception => MyLogger.log.warn("\nIt was not possible to parse the score" +
+      case excep: Exception => PosePipelineLogger.log.warn("\nIt was not possible to parse the score" +
         " of the following molecule due to \n" + excep + ", setting the score to Double.MinValue\n" + pose)
     }
     result
