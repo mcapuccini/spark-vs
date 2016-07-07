@@ -35,7 +35,7 @@ class SBVSPipelineTest extends FunSuite with BeforeAndAfterAll {
   test("sortByScore should sort a set of poses by score") {
 
     val res = new SBVSPipeline(sc)
-      .readPoseFile(getClass.getResource("filtered_collapsed.sdf").getPath)
+      .readPoseFile(getClass.getResource("filtered_collapsed.sdf").getPath, OEDockMethod.Chemgauss4)
       .sortByScore
       .getMolecules
       .collect
@@ -50,7 +50,7 @@ class SBVSPipelineTest extends FunSuite with BeforeAndAfterAll {
     val n = 2
 
     val res = new SBVSPipeline(sc)
-      .readPoseFile(getClass.getResource("filtered_poses.sdf").getPath)
+      .readPoseFile(getClass.getResource("filtered_poses.sdf").getPath, OEDockMethod.Chemgauss4)
       .collapse(n)
       .getMolecules
       .collect
