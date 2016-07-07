@@ -49,8 +49,15 @@ private[vs] class PosePipeline(override val rdd: RDD[String], val scoreMethod: I
       }
       result = res.toDouble
     } catch {
-      case excep: Exception => PosePipelineLogger.log.warn("\nIt was not possible to parse the score" +
-        " of the following molecule due to \n" + excep + ", setting the score to Double.MinValue\n" + pose)
+
+      case nfe: NumberFormatException => PosePipelineLogger.log
+        .warn("Setting the score to Double.MinValue." +
+          "It was not possible to parse the score of the following molecule due to \n" +
+          nfe.getStackTraceString + "\nPose:\n" + pose)
+      case excep: Exception => PosePipelineLogger.log
+      .warn("Setting the score to Double.MinValue." +
+          "It was not possible to parse the score of the following molecule due to \n" +
+          excep.getStackTraceString + "\nPose:\n" + pose)
     }
     result
   }
