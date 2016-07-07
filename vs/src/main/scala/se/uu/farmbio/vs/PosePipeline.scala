@@ -51,11 +51,11 @@ private[vs] class PosePipeline(override val rdd: RDD[String], val scoreMethod: I
     } catch {
 
       case nfe: NumberFormatException => PosePipelineLogger.log
-        .warn("Setting the score to Double.MinValue." +
+        .warn("EmptyScore : Setting the score to Double.MinValue." +
           "It was not possible to parse the score of the following molecule due to \n" +
           nfe.getStackTraceString + "\nPose:\n" + pose)
       case excep: Exception => PosePipelineLogger.log
-      .warn("Setting the score to Double.MinValue." +
+      .warn("Malformed mol: Setting the score to Double.MinValue." +
           "It was not possible to parse the score of the following molecule due to \n" +
           excep.getStackTraceString + "\nPose:\n" + pose)
     }
