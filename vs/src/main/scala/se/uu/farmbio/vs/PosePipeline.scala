@@ -4,6 +4,7 @@ import scala.io.Source
 import org.apache.spark.rdd.RDD
 import openeye.oedocking.OEDockMethod
 import org.apache.log4j.Logger
+import org.openscience.cdk.exception.CDKException
 
 trait PoseTransforms {
 
@@ -52,12 +53,16 @@ private[vs] class PosePipeline(override val rdd: RDD[String], val scoreMethod: I
 
       case nfe: NumberFormatException => PosePipelineLogger.log
         .warn("EmptyScore : Setting the score to Double.MinValue." +
-          "It was not possible to parse the score of the following molecule due to \n" +
-          nfe.getStackTraceString + "\nPose:\n" + pose)
-      case excep: Exception => PosePipelineLogger.log
+          "It was not possible to parse the score of the following molecule due to \n" + nfe +
+          "\n" + nfe.getStackTraceString + "\nPose:\n" + pose)
+      case cdke: CDKException => PosePipelineLogger.log
         .warn("Malformed mol: Setting the score to Double.MinValue." +
-          "It was not possible to parse the score of the following molecule due to \n" +
-          excep.getStackTraceString + "\nPose:\n" + pose)
+          "It was not possible to parse the score of the following molecule due to \n" + cdke +
+          "\n" + cdke.getStackTraceString + "\nPose:\n" + pose)
+      case outOfBound: ArrayIndexOutOfBoundsException =>  PosePipelineLogger.log
+        .warn("Malformed mol: Setting the score to Double.MinValue." +
+          "It was not possible to parse the score of the following molecule due to \n" + outOfBound +
+          "\n" + outOfBound.getStackTraceString + "\nPose:\n" + pose)   
     }
     result
   }
