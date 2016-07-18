@@ -20,7 +20,7 @@ object Docker extends Logging {
     collapse: Int = 0,
     posesCheckpointPath: String = null,
     oeLicensePath: String = null,
-    sortMols:  Boolean = true,
+    skipSorting: Boolean = false,
     dockTimePerMol: Boolean = false)
 
   def main(args: Array[String]) {
@@ -48,12 +48,12 @@ object Docker extends Logging {
       opt[String]("oeLicensePath")
         .text("path to OEChem License")
         .action((x, c) => c.copy(oeLicensePath = x))
-      opt[Boolean]("sortMols")
-        .text("specify to sort molecules after docking (default: true)")
-        .action((x, c) => c.copy(sortMols = x))
-      opt[Boolean]("dockTimePerMol")
-        .text("gives docking time for each mol (default: false)")
-        .action((x, c) => c.copy(dockTimePerMol = x))
+      opt[Unit]("skipSorting")
+        .text("if set the molecules will not be sorted by score")
+        .action((_, c) => c.copy(skipSorting = true))
+      opt[Unit]("dockTimePerMol")
+        .text("if set the docking time will be saved in the results as SDF field")
+        .action((_, c) => c.copy(dockTimePerMol = true))
       arg[String]("<conformers-file>")
         .required()
         .text("path to input SDF conformers file")
@@ -106,7 +106,7 @@ object Docker extends Logging {
     if (params.collapse > 0) {
       poses = poses.collapse(params.collapse)
     }
-    if (params.sortMols == true){
+    if (params.skipSorting == false) {
       poses = poses.sortByScore
     }
     val t1 = System.currentTimeMillis
