@@ -19,7 +19,9 @@ object Docker extends Logging {
     sampleSize: Double = 1.0,
     collapse: Int = 0,
     posesCheckpointPath: String = null,
-    oeLicensePath: String = null)
+    oeLicensePath: String = null,
+    skipSorting: Boolean = false,
+    dockTimePerMol: Boolean = false)
 
   def main(args: Array[String]) {
 
@@ -46,6 +48,12 @@ object Docker extends Logging {
       opt[String]("oeLicensePath")
         .text("path to OEChem License")
         .action((x, c) => c.copy(oeLicensePath = x))
+      opt[Unit]("skipSorting")
+        .text("if set the molecules will not be sorted by score")
+        .action((_, c) => c.copy(skipSorting = true))
+      opt[Unit]("dockTimePerMol")
+        .text("if set the docking time will be saved in the results as SDF field")
+        .action((_, c) => c.copy(dockTimePerMol = true))
       arg[String]("<conformers-file>")
         .required()
         .text("path to input SDF conformers file")
@@ -94,17 +102,18 @@ object Docker extends Logging {
 
     var poses = new SBVSPipeline(sc)
       .readConformerRDDs(Seq(sampleRDD))
-      .dock(params.receptorFile, OEDockMethod.Chemgauss4, OESearchResolution.Standard)
+      .dock(params.receptorFile, OEDockMethod.Chemgauss4, OESearchResolution.Standard, params.dockTimePerMol)
     if (params.collapse > 0) {
       poses = poses.collapse(params.collapse)
     }
-
-    val sortedPoses = poses.sortByScore
+    if (params.skipSorting == false) {
+      poses = poses.sortByScore
+    }
     val t1 = System.currentTimeMillis
     if (params.posesCheckpointPath != null) {
-      sortedPoses.saveAsTextFile(params.posesCheckpointPath)
+      poses.saveAsTextFile(params.posesCheckpointPath)
     }
-    val res = sortedPoses
+    val res = poses
       .getMolecules
       .take(10) //take first 10
     sc.parallelize(res, 1).saveAsTextFile(params.topPosesPath)
