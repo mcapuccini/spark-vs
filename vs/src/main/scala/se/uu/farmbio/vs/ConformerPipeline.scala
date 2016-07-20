@@ -19,7 +19,7 @@ import org.openscience.cdk.interfaces.IAtomContainer
 
 trait ConformerTransforms {
   val DOCKING_CPP_URL = "http://pele.farmbio.uu.se/spark-vs/dockingstd"
-  def dock(receptorPath: String, method: Int, resolution: Int, dockTimePerMol: Boolean = false): SBVSPipeline with PoseTransforms
+  def dock(receptorPath: String, method: Int, resolution: Int): SBVSPipeline with PoseTransforms
   def repartition: SBVSPipeline with ConformerTransforms
   def generateSignatures(): SBVSPipeline with ConformersWithSignsTransforms
 }
@@ -80,26 +80,12 @@ object ConformerPipeline {
     strWriter.toString() //return the molecule  
   }
 
-  private def writeDockTime(sdfRecord: String, dockTime: String) = {
-    val it = SBVSPipeline.CDKInit(sdfRecord)
-    val strWriter = new StringWriter()
-    val writer = new SDFWriter(strWriter)
-    while (it.hasNext()) {
-      val mol = it.next
-      mol.setProperty("DockTime", dockTime)
-      mol.removeProperty("cdk:Remark")
-      writer.write(mol)
-    }
-    writer.close
-    strWriter.toString() //return the molecule  
-  }
-
 }
 
 private[vs] class ConformerPipeline(override val rdd: RDD[String])
     extends SBVSPipeline(rdd) with ConformerTransforms {
 
-  override def dock(receptorPath: String, method: Int, resolution: Int, dockTimePerMol: Boolean) = {
+  override def dock(receptorPath: String, method: Int, resolution: Int) = {
 
     //Use local CPP if DOCKING_CPP is set
     val dockingstdPath = if (System.getenv("DOCKING_CPP") != null) {
@@ -115,17 +101,11 @@ private[vs] class ConformerPipeline(override val rdd: RDD[String])
     val receptorFileName = Paths.get(receptorPath).getFileName.toString
     val dockingstdFileName = Paths.get(dockingstdPath).getFileName.toString
     val pipedRDD = rdd.map { sdf =>
-      val t0 = System.currentTimeMillis
-      var dockedMols = ConformerPipeline.pipeString(sdf,
+      ConformerPipeline.pipeString(sdf,
         List(SparkFiles.get(dockingstdFileName),
           method.toString(),
           resolution.toString(),
           SparkFiles.get(receptorFileName)))
-      val t1 = System.currentTimeMillis
-      if (dockTimePerMol == true) {
-        dockedMols = ConformerPipeline.writeDockTime(dockedMols, (t1 - t0).toString())
-      }
-      dockedMols
     }
 
     val res = pipedRDD.flatMap(SBVSPipeline.splitSDFmolecules)
