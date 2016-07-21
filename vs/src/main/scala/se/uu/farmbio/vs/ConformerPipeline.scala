@@ -116,16 +116,19 @@ private[vs] class ConformerPipeline(override val rdd: RDD[String])
     val dockingstdFileName = Paths.get(dockingstdPath).getFileName.toString
     val pipedRDD = rdd.map { sdf =>
       val t0 = System.currentTimeMillis
-      var dockedMols = ConformerPipeline.pipeString(sdf,
+      val dockedMols = ConformerPipeline.pipeString(sdf,
         List(SparkFiles.get(dockingstdFileName),
           method.toString(),
           resolution.toString(),
           SparkFiles.get(receptorFileName)))
       val t1 = System.currentTimeMillis
-      if (dockTimePerMol == true) {
-        dockedMols = ConformerPipeline.writeDockTime(dockedMols, (t1 - t0).toString())
+      val molCount = "\\$\\$\\$\\$".r.findAllIn(sdf).length
+      if (dockTimePerMol == true && molCount != 0 ) {
+        ConformerPipeline.writeDockTime(dockedMols, ((t1 - t0)/molCount).toString())
       }
-      dockedMols
+      else{
+        dockedMols
+      }
     }
 
     val res = pipedRDD.flatMap(SBVSPipeline.splitSDFmolecules)
