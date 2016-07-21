@@ -122,8 +122,8 @@ private[vs] class ConformerPipeline(override val rdd: RDD[String])
           resolution.toString(),
           SparkFiles.get(receptorFileName)))
       val t1 = System.currentTimeMillis
-      if (dockTimePerMol == true) {
-        val molCount = "$$$$".r.findAllIn(sdf).length
+      val molCount = "\\$\\$\\$\\$".r.findAllIn(sdf).length
+      if (dockTimePerMol == true && molCount != 0 ) {
         dockedMols = ConformerPipeline.writeDockTime(dockedMols, ((t1 - t0)/molCount).toString())
       }
       dockedMols
