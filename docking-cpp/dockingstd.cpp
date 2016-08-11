@@ -29,21 +29,31 @@ int main(int numOfArg, char* argv[])
 
 	OEMol mcmol;
 	unsigned int retcode;
-
+	string sdData;	
 	//Scoring the molecules in SDF File
 	while (OEReadMolecule(imstr, mcmol))
 		{
-	           OEGraphMol dockedMol;
+	           
+		   OEGraphMol dockedMol;
 		   retcode = dock.DockMultiConformerMolecule(dockedMol,mcmol);
 	           if (retcode==OEDockingReturnCode::Success)
 		   	{	
 		   		string sdtag = OEDockMethodGetName(dockMethod);
-	           		OESetSDScore(dockedMol, dock, sdtag);
+				OEGraphMol gfMol;
+				//copy sd tag data i.e. signatures from mcmol to dockedMol if it exists
+				for(OEIter<OEConfBase> conf = mcmol.GetConfs(); conf; ++conf)
+		                        if (OEHasSDData(conf,"Signature"))
+                	                {
+						sdData = OEGetSDData(conf,"Signature");
+						OESetSDData(dockedMol,"Signature", sdData);
+					}
+				OESetSDScore(dockedMol, dock, sdtag);
 	           		dock.AnnotatePose(dockedMol);
 	           		//Writing moles to the SDF File with Scores
 	           		OEWriteMolecule(omstr, dockedMol);
 			}
 	         }
+
 
   	return 0;
 }
