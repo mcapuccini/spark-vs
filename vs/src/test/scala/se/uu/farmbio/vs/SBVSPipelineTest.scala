@@ -128,7 +128,7 @@ class SBVSPipelineTest extends FunSuite with BeforeAndAfterAll {
       .getMolecules
       .collect
 
-    val dockedMolecules = TestUtils.readSDF(getClass.getResource("new_pose_file.sdf").getPath)
+    val dockedMolecules = TestUtils.readSDF(getClass.getResource("unsorted_poses.sdf").getPath)
     assert(res.map(TestUtils.removeSDFheader).toSet
       === dockedMolecules.map(TestUtils.removeSDFheader).toSet)
 
@@ -137,7 +137,7 @@ class SBVSPipelineTest extends FunSuite with BeforeAndAfterAll {
   test("getTopPoses should return the topN poses") {
     val topN = 10
     val res = new SBVSPipeline(sc)
-      .readPoseFile(getClass.getResource("new_pose_file.sdf").getPath, OEDockMethod.Chemgauss4)
+      .readPoseFile(getClass.getResource("unsorted_poses.sdf").getPath, OEDockMethod.Chemgauss4)
       .getTopPoses(topN)
 
     val topCollapsed = TestUtils.readSDF(getClass.getResource("top_collapsed.sdf").getPath)
