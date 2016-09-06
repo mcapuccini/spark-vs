@@ -134,6 +134,17 @@ class SBVSPipelineTest extends FunSuite with BeforeAndAfterAll {
 
   }
 
+  test("getTopMolecules should return the topN poses") {
+    val topN = 10
+    val res = new SBVSPipeline(sc)
+      .readPoseFile(getClass.getResource("new_pose_file.sdf").getPath, OEDockMethod.Chemgauss4)
+      .getTopPoses(topN)
+
+    val topCollapsed = TestUtils.readSDF(getClass.getResource("top_collapsed.sdf").getPath)
+    assert(res.map(TestUtils.removeSDFheader).toSet === topCollapsed.map(TestUtils.removeSDFheader).toSet)
+
+  }
+
   override def afterAll() {
     sc.stop()
   }
