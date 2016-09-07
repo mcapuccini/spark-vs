@@ -28,7 +28,7 @@ object TopNPoses extends Logging {
         .text("path to OEChem License")
         .action((x, c) => c.copy(oeLicensePath = x))
       opt[Int]("n")
-        .text("it controls top N poses (default: 30).")
+        .text("number of top scoring poses to extract (default: 30).")
         .action((x, c) => c.copy(n = x))
       arg[String]("<poses-file>")
         .required()
