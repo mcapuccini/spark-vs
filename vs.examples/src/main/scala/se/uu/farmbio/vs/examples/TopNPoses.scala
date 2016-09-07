@@ -14,21 +14,21 @@ object TopNPoses extends Logging {
     poseFile: String = null,
     topPosesPath: String = null,
     oeLicensePath: String = null
-    )
+  )
 
   def main(args: Array[String]) {
     val defaultParams = Params()
     val parser = new OptionParser[Params]("TopNPoses") {
-      head("TopNPoses: an example of getting TopN Poses.")
+      head("TopNPoses: it gets the top N poses, avoiding distributed sorting.")
       opt[String]("master")
         .text("spark master")
         .action((x, c) => c.copy(master = x))
       opt[String]("oeLicensePath")
         .text("path to OEChem License")
         .action((x, c) => c.copy(oeLicensePath = x))
-      arg[String]("<pose-file>")
+      arg[String]("<poses-file>")
         .required()
-        .text("path to input SDF conformers file")
+        .text("path to input SDF poses file")
         .action((x, c) => c.copy(poseFile = x))
       arg[String]("<top-poses-path>")
         .required()
