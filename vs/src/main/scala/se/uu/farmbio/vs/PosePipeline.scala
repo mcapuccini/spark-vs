@@ -97,6 +97,8 @@ private[vs] object PosePipeline extends Logging {
 private[vs] class PosePipeline(override val rdd: RDD[String], val scoreMethod: Int) extends SBVSPipeline(rdd)
     with PoseTransforms {
 
+  //Need a local copy due to serialization error 
+  // http://spark-summit.org/wp-content/uploads/2013/10/McDonough-spark-tutorial_spark-summit-2013.pptx
   val methodBroadcast = rdd.sparkContext.broadcast(scoreMethod)
 
   override def getTopPoses(topN: Int) = {
