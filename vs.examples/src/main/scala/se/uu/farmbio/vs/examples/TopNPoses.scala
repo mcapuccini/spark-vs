@@ -67,6 +67,8 @@ object TopNPoses extends Logging {
     sc.parallelize(res, 1).saveAsTextFile(params.topPosesPath)
     val elapsed = t1 - t0
     logInfo(s"pipeline took: $elapsed millisec.")
+    
+    sc.stop()
 
   }
 
