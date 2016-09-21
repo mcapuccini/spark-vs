@@ -20,18 +20,6 @@ import java.nio.charset.Charset
 
 import scala.io.Source
 
-object SBVSPipelineTest {
-  private def parseSignature = (pose: String) => {
-    var res: String = null
-    val it = SBVSPipeline.CDKInit(pose)
-    while (it.hasNext()) {
-      val mol = it.next
-      res = mol.getProperty("Signature")
-    }
-    res
-  }
-}
-
 @RunWith(classOf[JUnitRunner])
 class SBVSPipelineTest extends FunSuite with BeforeAndAfterAll {
 
@@ -166,7 +154,8 @@ class SBVSPipelineTest extends FunSuite with BeforeAndAfterAll {
 
     val signsBeforeDocking = molWithSigns.map {
       case (mol) =>
-        SBVSPipelineTest.parseSignature(mol)
+        TestUtils.parseSignature(mol)
+
     }.collect()
 
     val molWithSignsAndDockingScore = new SBVSPipeline(sc)
@@ -177,7 +166,7 @@ class SBVSPipelineTest extends FunSuite with BeforeAndAfterAll {
 
     val signsAfterDocking = molWithSignsAndDockingScore.map {
       case (mol) =>
-        SBVSPipelineTest.parseSignature(mol)
+        TestUtils.parseSignature(mol)
     }.collect()
 
     //Comparing signatures before and after docking

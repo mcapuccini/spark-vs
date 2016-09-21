@@ -5,6 +5,16 @@ import scala.io.Source
 
 object TestUtils {
 
+  def parseSignature = (pose: String) => {
+    var res: String = null
+    val it = SBVSPipeline.CDKInit(pose)
+    while (it.hasNext()) {
+      val mol = it.next
+      res = mol.getProperty("Signature")
+    }
+    res
+  }
+
   def removeSDFheader(sdf: String) = {
     Source.fromString(sdf).getLines.drop(3).mkString("\n")
   }
