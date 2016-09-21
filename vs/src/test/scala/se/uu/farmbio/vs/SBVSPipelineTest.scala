@@ -145,6 +145,36 @@ class SBVSPipelineTest extends FunSuite with BeforeAndAfterAll {
 
   }
 
+  test("Signatures are maintained(not lost) after docking") {
+
+    val molWithSigns = new SBVSPipeline(sc)
+      .readConformerFile(getClass.getResource("filtered_conformers.sdf").getPath)
+      .generateSignatures()
+      .getMolecules
+
+    val signsBeforeDocking = molWithSigns.map {
+      case (mol) =>
+        TestUtils.parseSignature(mol)
+
+    }.collect()
+
+    val molWithSignsAndDockingScore = new SBVSPipeline(sc)
+      .readConformerRDDs(Seq(molWithSigns))
+      .dock(getClass.getResource("receptor.oeb").getPath,
+        OEDockMethod.Chemgauss4, OESearchResolution.Standard)
+      .getMolecules
+
+    val signsAfterDocking = molWithSignsAndDockingScore.map {
+      case (mol) =>
+        TestUtils.parseSignature(mol)
+    }.collect()
+
+    //Comparing signatures before and after docking
+    assert(signsBeforeDocking.toSet()
+      === signsAfterDocking.toSet())
+
+  }
+
   override def afterAll() {
     sc.stop()
   }
