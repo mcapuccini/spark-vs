@@ -57,7 +57,7 @@ private[vs] object PosePipeline extends Logging {
 
   }
 
-  private def parseScore(method: Int)(pose: String) = {
+  private[vs] def parseScore(method: Int)(pose: String) = {
     var result: Double = Double.MinValue
     //Sometimes OEChem produce molecules with empty score or malformed molecules
     //We use try catch block for those exceptions
@@ -115,9 +115,9 @@ private[vs] class PosePipeline(override val rdd: RDD[String], val scoreMethod: I
       idAndScore.foldLeft(Map[String, Double]() withDefaultValue Double.MinValue) {
         case (m, (id, score)) => m updated (id, score max m(id))
       }
-      .toSeq
-      .sortBy { case (id, score) => -score }
-      .take(topN).toArray
+        .toSeq
+        .sortBy { case (id, score) => -score }
+        .take(topN).toArray
 
     //Broadcasting the top id and score and search main rdd
     //for top molecules in parallel  

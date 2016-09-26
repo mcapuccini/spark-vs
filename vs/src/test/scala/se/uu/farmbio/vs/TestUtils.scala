@@ -5,6 +5,20 @@ import scala.io.Source
 
 object TestUtils {
 
+  def getFormat = (pose: String) => {
+
+    var signType: String = null
+    val it = SBVSPipeline.CDKInit(pose)
+
+    val mol = it.next()
+    val sign: String = mol.getProperty("Signature")
+    val score: String = mol.getProperty("Chemgauss4")
+    val scoreInDouble: Double = score.toDouble
+    (mol.getClass.getSimpleName.toString(),
+      sign.getClass.getSimpleName.toString(),
+      scoreInDouble.getClass().getSimpleName.toString())
+
+  }
   def parseSignature = (pose: String) => {
     var res: String = null
     val it = SBVSPipeline.CDKInit(pose)
