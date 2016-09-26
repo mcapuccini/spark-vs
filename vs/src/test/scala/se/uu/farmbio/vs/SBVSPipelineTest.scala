@@ -175,6 +175,26 @@ class SBVSPipelineTest extends FunSuite with BeforeAndAfterAll {
 
   }
 
+  test("dockWithML should generate the poses in expected format") {
+    val molsWithSignAndScore = new SBVSPipeline(sc)
+      .readConformerFile(getClass.getResource("100mols.sdf").getPath)
+      .generateSignatures
+      .dockWithML(getClass.getResource("receptor.oeb").getPath,
+        OEDockMethod.Chemgauss4, OESearchResolution.Standard,
+        numOfICPs = 5,
+        calibrationSize = 5,
+        numIterations = 20,
+        portion = 20,
+        divider = 100)
+      .getMolecules
+      .collect()
+
+    val format = TestUtils.getFormat(molsWithSignAndScore(0))
+
+    assert(format === ("AtomContainer", "String", "double"))
+
+  }
+
   override def afterAll() {
     sc.stop()
   }

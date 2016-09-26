@@ -71,6 +71,11 @@
 			<artifactId>spark-core_2.10</artifactId>
 			<version>1.6.1</version>
 		</dependency>
+		<dependency>
+			<groupId>se.uu.farmbio</groupId>
+			<artifactId>cp</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 	<build>
