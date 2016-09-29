@@ -115,9 +115,9 @@ private[vs] class PosePipeline(override val rdd: RDD[String], val scoreMethod: I
       idAndScore.foldLeft(Map[String, Double]() withDefaultValue Double.MinValue) {
         case (m, (id, score)) => m updated (id, score max m(id))
       }
-        .toSeq
-        .sortBy { case (id, score) => -score }
-        .take(topN).toArray
+      .toSeq
+      .sortBy { case (id, score) => -score }
+      .take(topN).toArray
 
     //Broadcasting the top id and score and search main rdd
     //for top molecules in parallel  
