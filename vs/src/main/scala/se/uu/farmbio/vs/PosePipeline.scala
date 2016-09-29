@@ -13,6 +13,7 @@ trait PoseTransforms {
   def sortByScore: SBVSPipeline with PoseTransforms
   def repartition: SBVSPipeline with PoseTransforms
   def getTopPoses(topN: Int): Array[String]
+
 }
 
 private[vs] object PosePipeline extends Logging {
@@ -87,7 +88,7 @@ private[vs] object PosePipeline extends Logging {
     }
     result
   }
-
+  @deprecated("parent Method collapse deprecated", "Sep 29, 2016")
   private def collapsePoses(bestN: Int, parseScore: String => Double) = (record: (String, Iterable[String])) => {
     record._2.toList.sortBy(parseScore).reverse.take(bestN)
   }
@@ -127,15 +128,16 @@ private[vs] class PosePipeline(override val rdd: RDD[String], val scoreMethod: I
         .map(topHit => topHit == idAndScore)
         .reduce(_ || _)
     }
-    topPoses.collect
+    topPoses.collect.sortBy { mol => -PosePipeline.parseScore(methodBroadcast.value)(mol) }
   }
-
+  
+  @deprecated("Spark sortBy is slow, use getTopPoses instead", "Sep 29, 2016")
   override def sortByScore = {
     val res = rdd.sortBy(PosePipeline
       .parseScore(methodBroadcast.value), false)
     new PosePipeline(res, scoreMethod)
   }
-
+  @deprecated("getTopPoses includes collapsing", "Sep 29, 2016")
   override def collapse(bestN: Int) = {
     val res = rdd.groupBy(PosePipeline.parseId)
       .flatMap(PosePipeline.collapsePoses(bestN, PosePipeline.parseScore(methodBroadcast.value)))
