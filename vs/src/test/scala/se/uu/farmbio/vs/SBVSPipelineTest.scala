@@ -32,6 +32,34 @@ class SBVSPipelineTest extends FunSuite with BeforeAndAfterAll {
   sc.hadoopConfiguration.set(SDFRecordReader.SIZE_PROPERTY_NAME, "3")
   sc.hadoopConfiguration.set(SmilesRecordReader.SIZE_PROPERTY_NAME, "3")
 
+  ignore("sortByScore should sort a set of poses by score") {
+
+    val res = new SBVSPipeline(sc)
+      .readPoseFile(getClass.getResource("filtered_collapsed.sdf").getPath, OEDockMethod.Chemgauss4)
+      .sortByScore
+      .getMolecules
+      .collect
+
+    val sortedPoses = TestUtils.readSDF(getClass.getResource("filtered_collapsed_sorted.sdf").getPath)
+    assert(res === sortedPoses)
+
+  }
+
+  ignore("collapse should collapse poses with same id to n with highest score") {
+
+    val n = 2
+
+    val res = new SBVSPipeline(sc)
+      .readPoseFile(getClass.getResource("filtered_poses.sdf").getPath, OEDockMethod.Chemgauss4)
+      .collapse(n)
+      .getMolecules
+      .collect
+
+    val filteredCollapsed = TestUtils.readSDF(getClass.getResource("filtered_collapsed.sdf").getPath)
+    assert(res.toSet === filteredCollapsed.toSet)
+
+  }
+
   test("filter should filter a set of SMILES according to the provided custom filter") {
 
     val res = new SBVSPipeline(sc)

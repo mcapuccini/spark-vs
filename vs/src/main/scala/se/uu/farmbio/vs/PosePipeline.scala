@@ -115,9 +115,9 @@ private[vs] class PosePipeline(override val rdd: RDD[String], val scoreMethod: I
       idAndScore.foldLeft(Map[String, Double]() withDefaultValue Double.MinValue) {
         case (m, (id, score)) => m updated (id, score max m(id))
       }
-      .toSeq
-      .sortBy { case (id, score) => -score }
-      .take(topN).toArray
+        .toSeq
+        .sortBy { case (id, score) => -score }
+        .take(topN).toArray
 
     //Broadcasting the top id and score and search main rdd
     //for top molecules in parallel  
@@ -128,9 +128,13 @@ private[vs] class PosePipeline(override val rdd: RDD[String], val scoreMethod: I
         .map(topHit => topHit == idAndScore)
         .reduce(_ || _)
     }
-    topPoses.collect.sortBy { mol => -PosePipeline.parseScore(methodBroadcast.value)(mol) }
+    //return statement  
+    topPoses.collect
+      .sortBy {
+        mol => -PosePipeline.parseScore(methodBroadcast.value)(mol)
+      }
   }
-  
+
   @deprecated("Spark sortBy is slow, use getTopPoses instead", "Sep 29, 2016")
   override def sortByScore = {
     val res = rdd.sortBy(PosePipeline
