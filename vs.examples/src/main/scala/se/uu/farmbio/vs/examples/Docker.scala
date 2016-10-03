@@ -19,7 +19,7 @@ object Docker extends Logging {
     sampleSize: Double = 1.0,
     posesCheckpointPath: String = null,
     oeLicensePath: String = null,
-    n: Int = 30,
+    topN: Int = 30,
     dockTimePerMol: Boolean = false)
 
   def main(args: Array[String]) {
@@ -44,9 +44,9 @@ object Docker extends Logging {
       opt[String]("oeLicensePath")
         .text("path to OEChem License")
         .action((x, c) => c.copy(oeLicensePath = x))
-      opt[Int]("n")
+      opt[Int]("topN")
         .text("number of top scoring poses to extract (default: 30).")
-        .action((x, c) => c.copy(n = x))
+        .action((x, c) => c.copy(topN = x))
       opt[Unit]("dockTimePerMol")
         .text("if set the docking time will be saved in the results as SDF field")
         .action((_, c) => c.copy(dockTimePerMol = true))
@@ -99,7 +99,7 @@ object Docker extends Logging {
     var poses = new SBVSPipeline(sc)
       .readConformerRDDs(Seq(sampleRDD))
       .dock(params.receptorFile, OEDockMethod.Chemgauss4, OESearchResolution.Standard, params.dockTimePerMol)
-    val res = poses.getTopPoses(params.n)
+    val res = poses.getTopPoses(params.topN)
     val t1 = System.currentTimeMillis
     if (params.posesCheckpointPath != null) {
       poses.saveAsTextFile(params.posesCheckpointPath)
