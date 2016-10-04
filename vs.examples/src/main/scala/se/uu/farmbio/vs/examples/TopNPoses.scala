@@ -14,8 +14,7 @@ object TopNPoses extends Logging {
     poseFile: String = null,
     topPosesPath: String = null,
     oeLicensePath: String = null,
-    topN: Int = 30
-  )
+    topN: Int = 30)
 
   def main(args: Array[String]) {
     val defaultParams = Params()
@@ -59,15 +58,13 @@ object TopNPoses extends Logging {
       conf.setMaster(params.master)
     }
     val sc = new SparkContext(conf)
-    val t0 = System.currentTimeMillis
-     val res = new SBVSPipeline(sc)
+
+    val res = new SBVSPipeline(sc)
       .readPoseFile(params.poseFile, OEDockMethod.Chemgauss4)
       .getTopPoses(params.topN)
-    val t1 = System.currentTimeMillis
+
     sc.parallelize(res, 1).saveAsTextFile(params.topPosesPath)
-    val elapsed = t1 - t0
-    logInfo(s"pipeline took: $elapsed millisec.")
-    
+
     sc.stop()
 
   }
