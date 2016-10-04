@@ -87,7 +87,6 @@ object Docker extends Logging {
     val sc = new SparkContext(conf)
     sc.hadoopConfiguration.set("se.uu.farmbio.parsers.SDFRecordReader.size", params.size)
 
-    val t0 = System.currentTimeMillis
     var sampleRDD = new SBVSPipeline(sc)
       .readConformerFile(params.conformersFile)
       .getMolecules
@@ -100,13 +99,11 @@ object Docker extends Logging {
       .readConformerRDDs(Seq(sampleRDD))
       .dock(params.receptorFile, OEDockMethod.Chemgauss4, OESearchResolution.Standard, params.dockTimePerMol)
     val res = poses.getTopPoses(params.topN)
-    val t1 = System.currentTimeMillis
+
     if (params.posesCheckpointPath != null) {
       poses.saveAsTextFile(params.posesCheckpointPath)
     }
     sc.parallelize(res, 1).saveAsTextFile(params.topPosesPath)
-    val elapsed = t1 - t0
-    logInfo(s"complete pipeline took: $elapsed millisec.")
 
   }
 
