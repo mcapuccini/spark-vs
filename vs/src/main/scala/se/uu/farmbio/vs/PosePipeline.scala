@@ -103,10 +103,13 @@ private[vs] class PosePipeline(override val rdd: RDD[String], val scoreMethod: I
   val methodBroadcast = rdd.sparkContext.broadcast(scoreMethod)
 
   override def getTopPoses(topN: Int) = {
+    
+    val cashedRDD = rdd.cache()
+    
     val methodBroadcastLocal = methodBroadcast
     val method = methodBroadcastLocal.value
     //Parsing id and Score in parallel and collecting data to driver
-    val idAndScore = rdd.map {
+    val idAndScore = cashedRDD.map {
       case (mol) => PosePipeline.parseIdAndScore(method)(mol)
     }.collect()
 
@@ -121,8 +124,8 @@ private[vs] class PosePipeline(override val rdd: RDD[String], val scoreMethod: I
 
     //Broadcasting the top id and score and search main rdd
     //for top molecules in parallel  
-    val topMolsBroadcast = rdd.sparkContext.broadcast(topMols)
-    val topPoses = rdd.filter { mol =>
+    val topMolsBroadcast = cashedRDD.sparkContext.broadcast(topMols)
+    val topPoses = cashedRDD.filter { mol =>
       val idAndScore = PosePipeline.parseIdAndScore(method)(mol)
       topMolsBroadcast.value
         .map(topHit => topHit == idAndScore)
@@ -131,7 +134,7 @@ private[vs] class PosePipeline(override val rdd: RDD[String], val scoreMethod: I
     //return statement  
     topPoses.collect
       .sortBy {
-        mol => -PosePipeline.parseScore(methodBroadcast.value)(mol)
+        mol => -PosePipeline.parseScore(scoreMethod)(mol)
       }
   }
 

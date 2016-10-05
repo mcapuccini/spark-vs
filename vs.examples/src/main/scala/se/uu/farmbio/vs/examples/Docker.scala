@@ -98,10 +98,11 @@ object Docker extends Logging {
     var poses = new SBVSPipeline(sc)
       .readConformerRDDs(Seq(sampleRDD))
       .dock(params.receptorFile, OEDockMethod.Chemgauss4, OESearchResolution.Standard, params.dockTimePerMol)
+    val cashedPoses = poses.getMolecules.cache()  
     val res = poses.getTopPoses(params.topN)
 
     if (params.posesCheckpointPath != null) {
-      poses.saveAsTextFile(params.posesCheckpointPath)
+      cashedPoses.saveAsTextFile(params.posesCheckpointPath)
     }
     sc.parallelize(res, 1).saveAsTextFile(params.topPosesPath)
 
