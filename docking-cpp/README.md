@@ -16,6 +16,4 @@ g++ docking-cpp/dockingstd.cpp -o docking_std -Wall -std=c++11 -g \
 
 ## Run
 
-```bash
-#TODO @laeeq  
-```
+**TODO** @laeeq80
