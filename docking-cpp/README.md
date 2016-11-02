@@ -5,7 +5,7 @@ The folder contains some C++ code that compiles to a lightweight Docking executa
 ## Compile
 
 ```bash
-g++ docking-cpp/dockingstd.cpp -o docking_std -Wall -std=c++11 -g \
+g++ docking-cpp/dockingstd.cpp -o dockingstd -Wall -std=c++11 -g \
 -IOpenEyeToolkits/default/include \
 -LOpenEyeToolkits/default/lib \
 -loedocking -loeszybki -loeff -loeieff -loeamber -loequacpac \
@@ -16,4 +16,6 @@ g++ docking-cpp/dockingstd.cpp -o docking_std -Wall -std=c++11 -g \
 
 ## Run
 
-**TODO** @laeeq80
+```bash
+./dockingstd <method-code> <resolution-code> receptor.oeb < library.sdf
+```
