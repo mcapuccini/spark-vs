@@ -4,6 +4,10 @@
 
 **Spark-VS** is a Spark-based library for setting up massively parallel Structure-Based Virtual Screening (SBVS) pipelines in Spark.
 
+## Table of Contents
+- [Getting started (on local machine)](#getting-started-on-local-machine)
+- [Deploy on a Spark cluster](#deploy-on-a-spark-cluster)
+
 ## Getting started (on local machine)
 
 First, you need to setup a Spark project with maven, this tutorial is a good starting point: www.youtube.com/watch?v=aB4-RD_MMf0
