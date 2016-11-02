@@ -9,23 +9,25 @@ First, you need to setup a Spark project with maven, this tutorial is a good sta
 
 Then, add the following entries into your pom.xml file: 
 
-	<repositories>
-		...
-		<repository>
-			<id>pele.farmbio.uu.se</id>
-			<url>http://pele.farmbio.uu.se/artifactory/libs-snapshot</url>
-		</repository>
-		...
-	</repositories>
+```xml
+<repositories>
+	...
+	<repository>
+		<id>pele.farmbio.uu.se</id>
+		<url>http://pele.farmbio.uu.se/artifactory/libs-snapshot</url>
+	</repository>
+	...
+</repositories>
 
-	<dependencies>
+<dependencies>
 	...
-		<groupId>se.uu.farmbio</groupId>
-			<artifactId>vs</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
+	<groupId>se.uu.farmbio</groupId>
+		<artifactId>vs</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</dependency>
 	...
-	</dependencies>
+</dependencies>
+```
 	
 Finally, since OpenEye libraries are used under the hood, you need to own and a OpenEye license in order to run this. Therefore, you need to set a OE_LICENSE environment variable that points to the license, in your system to run the code in this repository.	
 
