@@ -1,4 +1,4 @@
-<img src="logo.png" width="500px"/>
+<div style="text-align:center"><img src="logo.png" width="500px"/></div>
 
 **Spark-VS** is a Spark-based library for setting up massively parallel Structure-Based Virtual Screening (SBVS) pipelines in Spark.
 
