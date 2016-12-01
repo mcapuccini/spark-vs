@@ -18,7 +18,7 @@ import java.nio.charset.Charset
 
 import openeye.oechem.OEErrorLevel
 
-object SBVSPipeline {
+private[vs] object SBVSPipeline {
 
   def splitSDFmolecules(molecules: String) = {
     molecules.trim.split("\\$\\$\\$\\$").map(_.trim + "\n\n$$$$").toList
@@ -40,7 +40,7 @@ object SBVSPipeline {
 
 }
 
-private[vs] class SBVSPipeline(protected val rdd: RDD[String]) extends Logging {
+class SBVSPipeline(protected val rdd: RDD[String]) extends Logging {
 
   def this(sc: SparkContext) = {
     this(sc.emptyRDD[String])
