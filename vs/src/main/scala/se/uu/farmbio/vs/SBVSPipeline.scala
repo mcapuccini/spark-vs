@@ -18,7 +18,7 @@ import java.nio.charset.Charset
 
 import openeye.oechem.OEErrorLevel
 
-private[vs] object SBVSPipeline {
+object SBVSPipeline {
 
   def splitSDFmolecules(molecules: String) = {
     molecules.trim.split("\\$\\$\\$\\$").map(_.trim + "\n\n$$$$").toList
