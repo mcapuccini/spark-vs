@@ -20,6 +20,19 @@ import java.nio.charset.Charset
 
 import scala.io.Source
 
+object SBVSPipelineTest {
+  private def parseSignature = (pose: String) => {
+    var res: String = null
+    val it = SBVSPipeline.CDKInit(pose)
+    while (it.hasNext()) {
+      val mol = it.next
+      res = mol.getProperty("Signature")
+    }
+    res
+  }
+
+}
+
 @RunWith(classOf[JUnitRunner])
 class SBVSPipelineTest extends FunSuite with BeforeAndAfterAll {
 
@@ -133,6 +146,36 @@ class SBVSPipelineTest extends FunSuite with BeforeAndAfterAll {
       === dockedMolecules.map(TestUtils.removeSDFheader).toSet)
 
   }
+  
+  test("Signatures are maintained(not lost) after docking") {
+
+    val molWithSigns = new SBVSPipeline(sc)
+      .readConformerFile(getClass.getResource("filtered_conformers.sdf").getPath)
+      .generateSignatures()
+      .getMolecules
+
+    val signsBeforeDocking = molWithSigns.map {
+      case (mol) =>
+        SBVSPipelineTest.parseSignature(mol)
+    }.collect()
+
+    val molWithSignsAndDockingScore = new SBVSPipeline(sc)
+      .readConformerRDDs(Seq(molWithSigns))
+      .dock(getClass.getResource("receptor.oeb").getPath,
+        OEDockMethod.Chemgauss4, OESearchResolution.Standard)
+      .getMolecules
+
+    val signsAfterDocking = molWithSignsAndDockingScore.map {
+      case (mol) =>
+        SBVSPipelineTest.parseSignature(mol)
+    }.collect()
+    
+    //Comparing signatures before and after docking
+    assert(signsBeforeDocking.toSet()
+      === signsAfterDocking.toSet())
+
+  }
+
 
   test("getTopPoses should return sorted topN poses") {
     val topN = 10
